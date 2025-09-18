@@ -5,7 +5,7 @@ from langchain_core.messages import BaseMessage
 
 
 class State(BaseModel):
-    samples: Dict[str, Any] = Field(default={}, description="Esempi di dati grezzi")
+    samples: List[Dict[str, Any]] = Field(default=[], description="Esempi di dati grezzi")
 
     chat_history: Annotated[List[BaseMessage], "Conversation"] = Field(default=[], description="Storico della conversazione con l'LLM")
 
