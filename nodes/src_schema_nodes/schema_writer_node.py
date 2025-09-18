@@ -11,8 +11,9 @@ class SchemaWriter:
         if state.generated_schema and state.valid:
             with open(state.output_path, "w", encoding="utf-8") as f:
                 json.dump(state.generated_schema, f, indent=2, ensure_ascii=False)
-            with open(self.log_path, "w", encoding="utf-8") as f:
-                json.dump(state, f, indent=2, ensure_ascii=False)
+            
+            with open(self.log_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(state.model_dump(), ensure_ascii=False) + '\n')
         else:
             print("No valid schema to write.")
             state.valid = False

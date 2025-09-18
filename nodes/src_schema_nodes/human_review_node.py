@@ -24,6 +24,7 @@ class HumanReviewNode:
         # decision = {"action":"break"}
         # oppure {"action":"continue","feedback":"..."}
         #  oppure {"action":"restart"}
+        # oppure {"action":"manual","feedback":"final JSON schema"}
         action = decision["action"]
 
 
@@ -32,7 +33,8 @@ class HumanReviewNode:
             return Command(
                 goto="validation_node",
                 update={
-                    "accept_schema_generation":"break"
+                    "accept_schema_generation":"break",
+                    "generated_schema": json.loads(state.chat_history[-1].content)
                 }
             )
         
@@ -58,5 +60,19 @@ class HumanReviewNode:
                     "feedback": None
                 }
             )
+        elif action == "manual":
+            print("User provides a manual schema.")
+            manual_schema = json.loads(decision["feedback"])
+            try:
+                
+                return Command(
+                    goto="validation_node",
+                    update={
+                        "accept_schema_generation": "manual",
+                        "generated_schema": manual_schema
+                    }
+                )
+            except json.JSONDecodeError:
+                raise ValueError("Invalid JSON schema provided by the user.")
         else:
             raise ValueError("Invalid human decision")

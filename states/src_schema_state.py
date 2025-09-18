@@ -9,7 +9,7 @@ class State(BaseModel):
 
     chat_history: Annotated[List[BaseMessage], "Conversation"] = Field(default=[], description="Storico della conversazione con l'LLM")
 
-    accept_schema_generation: Literal["continue","break","restart"] | None = Field(default=None, description="Decisione dell'utente sulla generazione dello schema")
+    accept_schema_generation: Literal["continue", "break", "restart", "manual"] | None = Field(default=None, description="Decisione dell'utente sulla generazione dello schema")
     feedback: str | None = Field(default=None, description="Feedback dell'utente sulla generazione dello schema")
 
     valid: bool | None = Field(default=None, description="Flag di validità generale dello stato")

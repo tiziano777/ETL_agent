@@ -1,3 +1,5 @@
 {
-  "_task": "reasoning"
+  "_task": "reasoning",
+  "_filename": "glaive_dataset",
+  "_subpath": "data"
 }

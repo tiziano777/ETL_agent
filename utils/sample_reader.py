@@ -56,7 +56,11 @@ def load_dataset_samples(data_folder, k=1):
             # Pandas legge i file Parquet
             df = pd.read_parquet(file_path, nrows=k)
             return df.to_dict('records')
-            
+        
+        elif file_path.endswith('.tsv'):
+            df = pd.read_csv(file_path, sep='\t', nrows=k)
+            return df.to_dict('records')
+
     except Exception as e:
         print(f"Errore nel caricamento del campione da {file_path}: {e}")
         return None
