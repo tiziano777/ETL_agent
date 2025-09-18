@@ -13,10 +13,10 @@ from pipelines.source_schema_pipeline import create_pipeline
 
 from states.src_schema_state import State
 
-from nodes.src_schema_nodes.schema_node import SchemaNode
+from nodes.src_schema_nodes.llm_schema_node import SchemaNode
 from nodes.src_schema_nodes.human_review_node import HumanReviewNode
 from nodes.src_schema_nodes.validation_node import ValidationNode
-from nodes.src_schema_nodes.schema_writer import SchemaWriter
+from nodes.src_schema_nodes.schema_writer_node import SchemaWriter
 
 from langfuse import Langfuse
 from langfuse.langchain import CallbackHandler
@@ -159,6 +159,9 @@ def main():
     st.base_path = BASE_PATH
     st.dataset_folder = dataset_researcher(st.base_path)
     st.dataset_path = os.path.join(st.base_path, st.dataset_folder) if st.dataset_folder else None
+    st.dataset_data_subfolder = "data"
+    st.dataset_data = os.path.join(st.dataset_path, st.dataset_data_subfolder) if st.dataset_path else None
+    
     if st.dataset_path:
         metadata_editor(st.dataset_path)
 

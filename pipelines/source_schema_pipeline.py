@@ -5,10 +5,10 @@ from langgraph.checkpoint.memory import InMemorySaver
 
 from states.src_schema_state import State
 
-from nodes.src_schema_nodes.schema_node import SchemaNode
+from nodes.src_schema_nodes.llm_schema_node import SchemaNode
 from nodes.src_schema_nodes.human_review_node import HumanReviewNode
 from nodes.src_schema_nodes.validation_node import ValidationNode
-from nodes.src_schema_nodes.schema_writer import SchemaWriter
+from nodes.src_schema_nodes.schema_writer_node import SchemaWriter
 
 
 def create_pipeline(llm_node: SchemaNode,

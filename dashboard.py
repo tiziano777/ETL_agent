@@ -14,10 +14,10 @@ from pipelines.source_schema_pipeline import create_pipeline
 
 from states.src_schema_state import State
 
-from nodes.src_schema_nodes.schema_node import SchemaNode
+from nodes.src_schema_nodes.llm_schema_node import SchemaNode
 from nodes.src_schema_nodes.human_review_node import HumanReviewNode
 from nodes.src_schema_nodes.validation_node import ValidationNode
-from nodes.src_schema_nodes.schema_writer import SchemaWriter
+from nodes.src_schema_nodes.schema_writer_node import SchemaWriter
 
 from langfuse import Langfuse
 from langfuse.langchain import CallbackHandler
@@ -57,7 +57,7 @@ geminiLLM = ChatGoogleGenerativeAI(
 # Inizializzazione della pipeline una sola volta
 if "graph" not in st.session_state:
     st.session_state.graph = create_pipeline(
-        llm_node=SchemaNode(llm=geminiLLM, prompt=prompts["source_schema_extraction_prompt"]),
+        llm_node=SchemaNode(llm=geminiLLM, prompt=prompts["source_schema_extraction_prompt"], feedback_prompt=prompts["feedback_prompt"]),
         human_node=HumanReviewNode(),
         validation_node=ValidationNode(),
         writer_node=SchemaWriter()
@@ -203,12 +203,14 @@ def show_schema_extraction():
     st.subheader("4. Estrazione Automatica dello Schema")
     st.write("La pipeline sta analizzando il tuo dataset per estrarre lo schema. Attendi il completamento o fornisci un feedback.")
 
-    # Logica della pipeline
-    if "pipeline_started" not in st.session_state or not st.session_state.pipeline_started:
+    # Avvia la pipeline solo se non è già stata avviata
+    if "pipeline_running" not in st.session_state:
+        st.session_state.pipeline_running = False
+
+    if not st.session_state.pipeline_running:
         if "thread_id" not in st.session_state:
             st.session_state.thread_id = str(uuid.uuid4())
 
-        # Preparazione dello stato iniziale e avvio
         try:
             st.session_state.samples = json.loads(json.dumps(st.session_state.samples))
         except Exception as e:
@@ -228,15 +230,17 @@ def show_schema_extraction():
         try:
             with st.spinner("Avvio della pipeline..."):
                 result = st.session_state.graph.invoke(init_state, config=config)
+            
             st.session_state.interrupt = result.get("__interrupt__")
             st.session_state.state = result
-            st.session_state.pipeline_started = True
-            st.rerun() # Rerun per mostrare l'UI di review
+            st.session_state.pipeline_running = True
+            st.rerun() 
         except Exception as e:
             st.error(f"Errore durante l'avvio della pipeline: {e}")
             st.error(traceback.format_exc())
 
-    if "interrupt" in st.session_state:
+    # Se la pipeline è in esecuzione e ha generato un'interruzione per il feedback dell'utente
+    if "interrupt" in st.session_state and st.session_state.interrupt:
         interrupt = st.session_state.interrupt
         if isinstance(interrupt, list):
             interrupt = interrupt[0]
@@ -269,9 +273,8 @@ def show_schema_extraction():
             st.write(schema_str)
 
         st.markdown("---")
-
-        feedback_text = ""
-        st.subheader("Fornisci Feedback")
+        
+        # UI per il feedback
         feedback_text = st.text_area("Se vuoi ritentare la generazione, scrivi qui il tuo feedback per migliorarla:", value="", key="feedback_input")
 
         col1, col2, col3 = st.columns(3)
@@ -279,12 +282,15 @@ def show_schema_extraction():
             if st.button("➡️ Prosegui"):
                 decision = {"action": "break"}
                 config = {"configurable": {"thread_id": st.session_state.thread_id}, "callbacks": [langfuse_handler]}
+                
                 try:
                     with st.spinner("Invio della decisione e ripresa della pipeline..."):
                         result2 = st.session_state.graph.invoke(Command(resume=decision), config=config)
-                    st.success("✅ Pipeline completata!")
+                    
+                    st.session_state.interrupt = None # Pulisce l'interrupt
+                    st.success("✅ Schema approvato e salvato!")
                     st.session_state.current_stage = "select_target_schema"
-                    st.session_state.pipeline_started = False
+                    st.session_state.pipeline_running = False
                     st.json(result2)
                     st.balloons()
                     st.rerun()
@@ -296,6 +302,7 @@ def show_schema_extraction():
             if st.button("🔄 Ritenta Generazione"):
                 decision = {"action": "continue", "feedback": feedback_text}
                 config = {"configurable": {"thread_id": st.session_state.thread_id}, "callbacks": [langfuse_handler]}
+
                 try:
                     with st.spinner("Invio della decisione e ripresa della pipeline..."):
                         result2 = st.session_state.graph.invoke(Command(resume=decision), config=config)
@@ -305,9 +312,35 @@ def show_schema_extraction():
                         st.session_state.state = result2
                         st.rerun()
                     else:
-                        st.success("✅ Pipeline completata!")
+                        st.session_state.interrupt = None
+                        st.success("✅ Pipeline completata dopo il feedback!")
                         st.session_state.current_stage = "select_target_schema"
-                        st.session_state.pipeline_started = False
+                        st.session_state.pipeline_running = False
+                        st.json(result2)
+                        st.balloons()
+                        st.rerun()
+
+                except Exception as e:
+                    st.error(f"Errore durante la ripresa della pipeline: {e}")
+                    st.error(traceback.format_exc())
+        
+        with col3:
+            if st.button("↩️ Reset Generazione"):
+                decision = {"action": "restart"}
+                config = {"configurable": {"thread_id": st.session_state.thread_id}, "callbacks": [langfuse_handler]}
+                try:
+                    with st.spinner("Richiesta di reset e riavvio della pipeline..."):
+                         result2 = st.session_state.graph.invoke(Command(resume=decision), config=config)
+                    
+                    if "__interrupt__" in result2:
+                        st.session_state.interrupt = result2["__interrupt__"]
+                        st.session_state.state = result2
+                        st.rerun()
+                    else:
+                        st.session_state.interrupt = None
+                        st.success("✅ Pipeline riavviata con successo!")
+                        st.session_state.current_stage = "select_target_schema"
+                        st.session_state.pipeline_running = False
                         st.json(result2)
                         st.balloons()
                         st.rerun()
@@ -316,13 +349,12 @@ def show_schema_extraction():
                     st.error(f"Errore durante la ripresa della pipeline: {e}")
                     st.error(traceback.format_exc())
 
-        with col3:
-            if st.button("⬅️ Torna a Metadati"):
-                st.session_state.current_stage = "metadata"
-                st.session_state.pipeline_started = False
-                st.session_state.interrupt = None # Pulizia
-                st.rerun()
-                
+    if st.button("⬅️ Torna a Opzioni Schema", key="back_to_options_from_extraction_btn"):
+        st.session_state.current_stage = "schema_extraction_options"
+        st.session_state.pipeline_running = False
+        st.session_state.interrupt = None
+        st.rerun()
+
 def show_select_target_schema():
     """Sezione dummy per la selezione del target schema."""
     st.subheader("5. Seleziona Target Schema")

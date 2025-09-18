@@ -3,16 +3,21 @@
   "properties": {
     "prompt": {
       "type": "string",
-      "description": "The prompt presented to the language model."
+      "description": "A question or statement presented to a language model, designed to elicit a specific type of response. In this case, an analogy question in Italian, testing the understanding of antonyms.",
+      "examples": [
+        "Se 'caldo' sta a 'freddo' come 'giorno' sta a 'notte', a cosa sta 'alto' in relazione a 'basso'? Analizza la relazione di opposti."
+      ]
     },
     "response": {
       "type": "string",
-      "description": "The language model's response to the prompt."
+      "description": "The language model's answer to the prompt. It should provide a logical explanation based on the relationship presented in the prompt, demonstrating an understanding of the analogy.",
+      "examples": [
+        "Alto sta a basso, perché alto e basso sono opposti, così come caldo e freddo o giorno e notte."
+      ]
     }
   },
   "required": [
     "prompt",
     "response"
-  ],
-  "description": "Schema for a prompt and response pair."
+  ]
 }

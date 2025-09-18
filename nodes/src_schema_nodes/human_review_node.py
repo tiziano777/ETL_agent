@@ -28,22 +28,35 @@ class HumanReviewNode:
 
 
         if action == "break":
-            return Command(goto="validation_node", update={"accept_schema_generation":"break"})
+            print("User accept the generated schema.")
+            return Command(
+                goto="validation_node",
+                update={
+                    "accept_schema_generation":"break"
+                }
+            )
         
         elif action == "continue":
+            print("User provides feedback for schema improvement.")
             feedback_msg = str(decision["feedback"])
-            return Command(goto="llm_node", update={
-                "accept_schema_generation":"continue",
-                "feedback": feedback_msg
-            })
-        
+            return Command(
+                goto="llm_node",
+                update={
+                    "accept_schema_generation": "continue",
+                    "feedback": feedback_msg
+                }
+            )
+
         elif action == "restart":
-            # resettiamo la chat, ma manteniamo i samples
-            return Command(goto="llm_node", update={
-                "accept_schema_generation":"restart",
-                "chat_history": [],
-                "generated_schema": None,
-                "feedback": None
-            })
+            print("User requests to restart the schema generation process.")
+            return Command(
+                goto="llm_node",
+                update={
+                    "accept_schema_generation": "restart",
+                    "chat_history": [],
+                    "generated_schema": None,
+                    "feedback": None
+                }
+            )
         else:
             raise ValueError("Invalid human decision")

@@ -74,6 +74,7 @@ class SchemaNode:
                 samples=samples_json, actual_schema=actual_schema_json
             )
             msg_content += self.feedback_prompt.format(feedback=state.feedback)
+            print("message to LLM with feedback: ", msg_content)
 
         # Append come HumanMessage
         state.chat_history.append(HumanMessage(content=msg_content))
