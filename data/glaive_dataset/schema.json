@@ -1,20 +1,18 @@
 {
-  "type": "array",
-  "items": {
-    "type": "object",
-    "properties": {
-      "prompt": {
-        "type": "string",
-        "description": "The prompt presented to the model."
-      },
-      "response": {
-        "type": "string",
-        "description": "The model's response to the prompt."
-      }
+  "type": "object",
+  "properties": {
+    "prompt": {
+      "type": "string",
+      "description": "The prompt presented to the language model."
     },
-    "required": [
-      "prompt",
-      "response"
-    ]
-  }
+    "response": {
+      "type": "string",
+      "description": "The language model's response to the prompt."
+    }
+  },
+  "required": [
+    "prompt",
+    "response"
+  ],
+  "description": "Schema for a prompt and response pair."
 }

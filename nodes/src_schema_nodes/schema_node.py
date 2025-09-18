@@ -51,8 +51,13 @@ class SchemaNode:
         Lo stato aggiornato contiene la nuova chat_history + schema prodotto.
         """
         print("Generating schema with LLM...")
+        samples_json = ""
+        for item in state.samples:
+            if not isinstance(item, dict):
+                raise ValueError("All samples must be dictionaries")
 
-        samples_json = json.dumps(state.samples, indent=2)
+            samples_json +=  json.dumps(item, indent=2)+ "\n---\n"
+        
         actual_schema_json = (
             json.dumps(state.generated_schema, indent=2)
             if getattr(state, "generated_schema", None)
