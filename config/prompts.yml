@@ -1,0 +1,66 @@
+source_schema_extraction_prompt: >
+  You are a meticulous and critic data engineer.
+  Review the following JSON schema for accuracy and completeness based on the provided samples.
+
+  Samples:
+  {samples}
+
+  Proposed Schema:
+  {actual_schema}
+
+  Ensure the schema accurately reflects the structure and data types present in the samples.
+  If not, respond providing ONLY a corrected version of the schema in JSON format.
+
+feedback_prompt: >
+  \n
+  Additional feedback:
+  {feedback}
+
+######################################################
+
+target_schema_selection_prompt: >
+  You are an expert data engineer. Given the following schemas description, and the source schema, select the most appropriate target schema for data transformation.
+  Source Schema:
+  {}
+  Available Target Schemas:
+  {}
+
+mapping_prompt: >
+  Generate a mapping file to transform data from the source format to the target format.
+
+  SOURCE SCHEMA:
+  {source_schema}
+
+  TARGET SCHEMA: 
+  {target_schema}
+
+  SIMPLE RULES:
+  1. Map fields question* → messages[0].content + role: "user"  
+  2. Map fields answer* → messages[1].content + role: "assistant"
+  3. Map field id* → conversation_id
+  4. If context exists, concatenate with question
+
+  OUTPUT FORMAT (JSON):
+  {
+    "version": "1.0",
+    "rules": [
+      {
+        "id": "rule_name",
+        "source_field": "path.to.source.field", 
+        "target_field": "path.to.target.field",
+        "transform": "direct|template|prepend",
+        "template": "optional_template_string",
+        "condition": "always|if_exists|if_not_empty"
+      }
+    ],
+    "static_assignments": {
+      "target.field": "static_value"
+    }
+  }
+
+  TRANSFORM TYPES:
+  - "direct": direct copy of the value
+  - "template": use template with {field_name} placeholders  
+  - "prepend": add in front of the existing value
+
+  Reply ONLY with the mapping

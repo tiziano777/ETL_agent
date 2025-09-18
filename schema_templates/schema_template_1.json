@@ -1,0 +1,89 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Almawave Schema Template 1",
+    "type": "object",
+    "properties": {
+        "template": {
+            "type": "string",
+            "description": "A JSON schema template defining the structure of the data.",
+            "enum": ["chat_template"],
+            "default": "chat_template"
+        },
+        "system": {
+            "type": "string",
+            "description": "System prompt instructions for the LLM."
+        },
+        "messages": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "role": {
+                        "type": "string",
+                        "description": "The role of the message sender",
+                        "enum": ["USER", "ASSISTANT"]
+                    },
+                    "content": {
+                        "type": "string",
+                        "description": "The content of the message."
+                    }
+                },
+                "required": ["role", "content"]
+            },
+            "minItems": 1
+        },
+        "function_call": {
+            "type": ["object", "null"],
+            "description": "Optional function call information.",
+            "default": null,
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The name of the function to call."
+                },
+                "arguments": {
+                    "type": "object",
+                    "description": "The arguments to pass to the function."
+                }
+            },
+            "required": ["name", "arguments"]
+        },
+        "think": {
+            "type": ["boolean", "null"],
+            "description": "Whether the agent should think step-by-step before answering.",
+            "default": null
+        },
+        "context": {
+            "type": ["string", "null"],
+            "description": "Additional context or information to assist the LLM in generating the response.",
+            "default": null
+        },
+        "_lang": {
+            "type": ["string", "null"],
+            "description": "The programming language of dataset",
+            "default": null
+        },
+        "_dataset_name": {
+            "type": ["string", "null"],
+            "description": "The name of the dataset to be processed.",
+            "default": null
+        }, 
+        "_file_name": {
+            "type": ["string", "null"],
+            "description": "The file name of the dataset to be processed.",
+            "default": null
+        },
+        "_subpath": {
+            "type": ["string", "null"],
+            "description": "The subpath of the dataset to be processed.",
+            "default": null
+        },
+        "_id_hash": {
+            "type": ["string", "null"],
+            "description": "The unique identifier hash of the dataset to be processed.",
+            "default": null
+        }
+    },
+    "required": ["messages"],
+    "additionalProperties": false
+}

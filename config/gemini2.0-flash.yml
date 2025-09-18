@@ -1,0 +1,6 @@
+model_name: gemini-2.0-flash-001
+n_ctx: 8192
+temperature: 0.4
+top_p: 0.8
+top_k: 40
+max_output_tokens: 4096

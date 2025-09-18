@@ -1,0 +1,5 @@
+{"prompt": "Se 'caldo' sta a 'freddo' come 'giorno' sta a 'notte', a cosa sta 'alto' in relazione a 'basso'? Analizza la relazione di opposti.", "response": "Alto sta a basso, perché alto e basso sono opposti, così come caldo e freddo o giorno e notte."}
+{"prompt": "Qual è il risultato di 120 diviso per 4, meno 10? Calcola il valore numerico dell'espressione.", "response": "120 / 4 = 30. 30 - 10 = 20. Il risultato è 20."}
+{"prompt": "Se tutti gli uccelli hanno le ali, e un pinguino è un uccello, ha le ali? Applica la logica deduttiva.", "response": "Se tutti gli uccelli hanno le ali, e un pinguino rientra nella categoria degli uccelli, allora un pinguino deve avere le ali."}
+{"prompt": "Se l'anno scorso era il 2024, che anno sarà tra 3 anni? Calcola il valore temporale.", "response": "L'anno scorso era il 2024, quindi l'anno corrente è il 2025. L'anno tra 3 anni sarà 2025 + 3 = 2028."}
+{"prompt": "Un treno viaggia a una velocità media di 80 km/h. Quanto tempo impiega per percorrere 240 km? Risolvi un problema di velocità e tempo.", "response": "Per calcolare il tempo, si divide la distanza per la velocità. 240 km / 80 km/h = 3 ore."}

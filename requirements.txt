@@ -1,0 +1,11 @@
+langgraph
+streamlit
+langchain
+jsonschema
+pydantic
+python-dotenv
+langfuse
+langchain_google_genai
+json_repair
+
+
