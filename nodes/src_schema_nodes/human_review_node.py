@@ -13,7 +13,7 @@ class HumanReviewNode:
         """
         Human interrupt for schema review and manual correction, explicit approval/rejection.
         """
-        #print(state.chat_history[-1].content)
+        print("Human review of the generated schema...")
 
         decision = interrupt({
             "assistant_output": state.chat_history[-1].content,

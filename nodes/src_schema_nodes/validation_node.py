@@ -29,16 +29,17 @@ class ValidationNode:
         except Exception as e:
             return e
 
-    def __call__(self, state: State):
-
-        last_response = state["chat_history"][-1]["content"]
+    def __call__(self, state: State) -> Command[Literal["llm_node","writer_node"]]:
+        
+        print("Validating schema against samples...")
+        last_response = state.chat_history[-1].content
         schema = self.extract_json(last_response)
         self.validator = jsonschema.Draft7Validator(schema)
         error_messages = []
         valid = True
         i=0
 
-        for sample in state["samples"]:
+        for sample in state.samples:
             if isinstance(sample, Dict):
                 i=i+1
                 try:    
@@ -48,17 +49,23 @@ class ValidationNode:
                         continue
                 except jsonschema.exceptions.ValidationError as e:
                     valid = False
-                    error_messages.append(f"Validation Error {str(i)} : {str(e.message)}")
-        
+                    state.error_messages.append(f"Validation Error {str(i)} : {str(e.message)}")
+
         if valid:
-            return Command(goto=END, update={
+            print("Schema validato con successo!")
+            return Command(
+                goto="writer_node", 
+                update={
                 "generated_schema": schema,
                 "valid": True
             })
         else:
+            print("Schema non valido. Errori di validazione:", error_messages)
             # take from validation result and config
             feedback_msg = str(error_messages)
-            return Command(goto="llm_node", update={
+            return Command(
+                goto="llm_node", 
+                update={
                 "generated_schema": schema,
                 "valid": False,
                 "feedback": feedback_msg
