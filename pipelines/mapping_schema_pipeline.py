@@ -3,18 +3,18 @@ import traceback
 from langgraph.graph import StateGraph, START
 from langgraph.checkpoint.memory import InMemorySaver
 
-from states.src_schema_state import State
+from states.mapping_schema_state import State
 
-from nodes.src_schema_nodes.schema_node import SchemaNode
-from nodes.src_schema_nodes.human_review_node import HumanReviewNode
-from nodes.src_schema_nodes.validation_node import ValidationNode
-from nodes.src_schema_nodes.schema_writer_node import SchemaWriter
+from nodes.mapping_schema_nodes.mapping_node import MappingNode
+from nodes.mapping_schema_nodes.human_review_node import HumanReviewNode
+from nodes.mapping_schema_nodes.validation_node import ValidationNode
+from nodes.mapping_schema_nodes.mapping_writer_node import MappingWriter
 
 
-def create_pipeline(llm_node: SchemaNode,
+def create_pipeline(llm_node: MappingNode,
                     human_node: HumanReviewNode,
                     validation_node: ValidationNode,
-                    writer_node: SchemaWriter) -> StateGraph:
+                    writer_node: MappingWriter) -> StateGraph:
 
     graph = StateGraph(State)
 
@@ -41,9 +41,9 @@ def create_pipeline(llm_node: SchemaNode,
     
     try:
         graphImage = graph.get_graph().draw_mermaid_png()
-        with open("images/gemini_api_llm_src_schema_pipeline.png", "wb") as f:
+        with open("images/gemini_api_llm_mapping_schema_pipeline.png", "wb") as f:
             f.write(graphImage)
-        print("Salvata immagine del grafo in gemini_api_llm_src_schema_pipeline.png")
+        print("Salvata immagine del grafo in gemini_api_llm_mapping_schema_pipeline.png")
     except Exception as e:
         print(f"Errore durante la generazione del grafo: {e}")
         print(traceback.format_exc())

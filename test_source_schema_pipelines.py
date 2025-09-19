@@ -13,7 +13,7 @@ from pipelines.source_schema_pipeline import create_pipeline
 
 from states.src_schema_state import State
 
-from nodes.src_schema_nodes.llm_schema_node import SchemaNode
+from nodes.src_schema_nodes.schema_node import SchemaNode
 from nodes.src_schema_nodes.human_review_node import HumanReviewNode
 from nodes.src_schema_nodes.validation_node import ValidationNode
 from nodes.src_schema_nodes.schema_writer_node import SchemaWriter

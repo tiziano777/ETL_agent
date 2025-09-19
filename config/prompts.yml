@@ -18,49 +18,50 @@ feedback_prompt: >
 
 ######################################################
 
-target_schema_selection_prompt: >
-  You are an expert data engineer. Given the following schemas description, and the source schema, select the most appropriate target schema for data transformation.
-  Source Schema:
-  {}
-  Available Target Schemas:
-  {}
+mapping_schema_prompt: >
+  ou are an expert data transformation and mapping assistant.
+  Your task is to generate a JSON mapping file that describes how to transform data from a source (src) JSON schema to a destination (target) JSON schema.
+  The mapping file must be in a standard JSON format.
 
-mapping_prompt: >
-  Generate a mapping file to transform data from the source format to the target format.
+  Instructions:
 
-  SOURCE SCHEMA:
-  {source_schema}
-
-  TARGET SCHEMA: 
-  {target_schema}
-
-  SIMPLE RULES:
-  1. Map fields question* → messages[0].content + role: "user"  
-  2. Map fields answer* → messages[1].content + role: "assistant"
-  3. Map field id* → conversation_id
-  4. If context exists, concatenate with question
-
-  OUTPUT FORMAT (JSON):
+  Analyze the fields in the src_schema and target_schema.
+  Generate a JSON array called mappings.
+  Each object within the mappings array must have the following properties:
+  src_field: The path of the field in the src_schema. Use "N/A" if there is no direct source.
+  target_field: The path of the field in the target_schema.
+  data_type: The data type of the destination field (string, integer, boolean, etc.).
+  transformation: The transformation logic.
+  If src_field is not null, transformation must contain a descriptive string (e.g., "concatenate 'first_name' and 'last_name' with a space").
+  If src_field is null, transformation must contain the exact fixed value to be inserted (e.g., "USER") or a description of the calculation to be performed.
+  you have also to map metadatas (fields starting with _) in the target_schema by direct assignment of fixed values.
+  
+  Output format example:
   {
-    "version": "1.0",
-    "rules": [
+    "mappings": [
       {
-        "id": "rule_name",
-        "source_field": "path.to.source.field", 
-        "target_field": "path.to.target.field",
-        "transform": "direct|template|prepend",
-        "template": "optional_template_string",
-        "condition": "always|if_exists|if_not_empty"
-      }
-    ],
-    "static_assignments": {
-      "target.field": "static_value"
-    }
+        "src_field": "source_field_path | null",
+        "target_field": "target_field_path | _metadata_field",
+        "data_type": "data_type",
+        "transformation": "transformation_logic | fixed_value"
+      },
+      ...
+    ]
   }
 
-  TRANSFORM TYPES:
-  - "direct": direct copy of the value
-  - "template": use template with {field_name} placeholders  
-  - "prepend": add in front of the existing value
+  Ensure the output is valid JSON and adheres to the specified structure.
+  src_schema and metadata:
+  {metadata}
+  {src_schema}
+  
+  target_schema:
+  {target_schema}
 
-  Reply ONLY with the mapping
+  actual mapping_schema:
+  {mapping_schema}
+
+
+mapping_schema_feedback_prompt: >
+  \n
+  Additional feedback:
+  {feedback}
