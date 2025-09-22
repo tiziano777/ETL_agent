@@ -1,6 +1,6 @@
 import os
 import json
-from states.src_schema_state import State
+from states.mapping_schema_state import State
 
 class MappingWriter:
     def __init__(self,log_path:str="logs/mapping_generation_log.json"):

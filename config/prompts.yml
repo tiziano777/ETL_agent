@@ -19,35 +19,32 @@ feedback_prompt: >
 ######################################################
 
 mapping_schema_prompt: >
-  ou are an expert data transformation and mapping assistant.
+  You are an expert data transformation and mapping assistant.
   Your task is to generate a JSON mapping file that describes how to transform data from a source (src) JSON schema to a destination (target) JSON schema.
   The mapping file must be in a standard JSON format.
 
   Instructions:
 
   Analyze the fields in the src_schema and target_schema.
-  Generate a JSON array called mappings.
+  Generate a JSON array called mapping.json
   Each object within the mappings array must have the following properties:
-  src_field: The path of the field in the src_schema. Use "N/A" if there is no direct source.
-  target_field: The path of the field in the target_schema.
-  data_type: The data type of the destination field (string, integer, boolean, etc.).
-  transformation: The transformation logic.
-  If src_field is not null, transformation must contain a descriptive string (e.g., "concatenate 'first_name' and 'last_name' with a space").
+    **src_field**: The path of the field in the src_schema. Use "N/A" if there is no direct source.
+    **target_field**: The path of the field in the target_schema.
+    **transformation**: The transformation explanation or fixed value.
+  If src_field is not null, transformation must contain a descriptive string of the mapping logic.
   If src_field is null, transformation must contain the exact fixed value to be inserted (e.g., "USER") or a description of the calculation to be performed.
   you have also to map metadatas (fields starting with _) in the target_schema by direct assignment of fixed values.
   
-  Output format example:
-  {
-    "mappings": [
-      {
-        "src_field": "source_field_path | null",
-        "target_field": "target_field_path | _metadata_field",
-        "data_type": "data_type",
-        "transformation": "transformation_logic | fixed_value"
-      },
-      ...
-    ]
-  }
+  Output format example: 
+  [
+        {{
+          'src_field': 'source_field_path | null',
+          'target_field': 'target_field_path | _metadata_field',
+          'transformation': 'transformation_logic | fixed_value'
+        }},
+        ...
+  ]
+  
 
   Ensure the output is valid JSON and adheres to the specified structure.
   src_schema and metadata:
@@ -55,7 +52,7 @@ mapping_schema_prompt: >
   {src_schema}
   
   target_schema:
-  {target_schema}
+  {dst_schema}
 
   actual mapping_schema:
   {mapping_schema}

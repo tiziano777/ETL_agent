@@ -19,7 +19,7 @@ class GeminiErrorHandler:
             print(f"[extract_retry_delay_from_error] Errore: {ex}")
         return None
 
-    def gemini_invoke_with_retry(self, prompt, max_retries=5, retry_count=0):
+    def invoke(self, prompt, max_retries=5, retry_count=0):
         """
         Retry per Gemini con gestione del codice 429 e retry_delay.
         """

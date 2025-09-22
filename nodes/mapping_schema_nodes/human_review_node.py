@@ -1,6 +1,6 @@
 from langgraph.types import interrupt, Command
 from typing import Literal
-from states.src_schema_state import State
+from states.mapping_schema_state import State
 import json
 
 class HumanReviewNode:
@@ -12,6 +12,7 @@ class HumanReviewNode:
         Human interrupt for mapping review and manual correction, explicit approval/rejection.
         """
         print("Human review of the generated mapping...")
+        
 
         decision = interrupt({
             "assistant_output": state.chat_history[-1].content,
