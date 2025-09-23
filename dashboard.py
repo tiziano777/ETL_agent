@@ -100,6 +100,8 @@ def main():
             st.session_state.dataset_path = os.path.join(BASE_PATH, st.session_state.selected_folder)
             st.session_state.dataset_data = os.path.join(st.session_state.dataset_path, st.session_state.selected_subfolder)
             st.session_state.samples = load_dataset_samples(st.session_state.dataset_data, k=1)
+            print(st.session_state.samples)
+            print(type(st.session_state.samples))
         show_metadata_editor(st)
     
     elif st.session_state.current_stage == "schema_extraction_options":

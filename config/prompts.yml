@@ -26,14 +26,27 @@ mapping_schema_prompt: >
   Instructions:
 
   Analyze the fields in the src_schema and target_schema.
-  Generate a JSON array called mapping.json
+  Generate a JSON array called mapping.json:
   Each object within the mappings array must have the following properties:
     **src_field**: The path of the field in the src_schema. Use "N/A" if there is no direct source.
     **target_field**: The path of the field in the target_schema.
-    **transformation**: The transformation explanation or fixed value.
-  If src_field is not null, transformation must contain a descriptive string of the mapping logic.
-  If src_field is null, transformation must contain the exact fixed value to be inserted (e.g., "USER") or a description of the calculation to be performed.
-  you have also to map metadatas (fields starting with _) in the target_schema by direct assignment of fixed values.
+    **transformation**: The transformation explanation, fixed value, or enum mapping dict.
+  Rules:
+  - Mappping can be complete, if there is an array, for each field you must specify the index.
+    example: messages[].functioncall is not permitted, you must specify the index like messages[0].functioncall
+  - Don't forget to map every message in conversation array!
+  - If src_field is not null, src_field can be mapped to target_field easily, and transformation must contain a descriptive string.
+  - If src_field is not null, and the target_field is an enum, transformation must contain a dict mapping source values to target enum values.
+    example:{{
+      "src_field": "messages[0].role",
+      "target_field": "messages[0].role",
+      "transformation": {{
+        "human": "USER",
+        "gpt": "ASSISTANT"
+        }}
+      }}
+  - If src_field is null, transformation must contain only the exact fixed value to be inserted (e.g., "USER" or "ASSITANT")
+  - you have also to map metadatas (fields starting with _) in the target_schema by direct assignment of fixed values.
   
   Output format example: 
   [
@@ -45,7 +58,6 @@ mapping_schema_prompt: >
         ...
   ]
   
-
   Ensure the output is valid JSON and adheres to the specified structure.
   src_schema and metadata:
   {metadata}

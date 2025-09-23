@@ -1,0 +1,68 @@
+{
+  "type": "object",
+  "properties": {
+    "difficulty": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "Difficulty level of the problem/task. Null if not available.",
+      "default": null
+    },
+    "source": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Source of the problem/task (e.g., stackexchange_codegolf). Null if not available.",
+      "default": null
+    },
+    "domain": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Domain of the problem/task (e.g., code). Null if not available.",
+      "default": null
+    },
+    "conversations": {
+      "type": "array",
+      "description": "A list of conversation turns.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "enum": [
+              "human",
+              "gpt"
+            ],
+            "description": "Indicates who sent the message ('human' or 'gpt')."
+          },
+          "value": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The message content. Null if not available.",
+            "default": null
+          },
+          "think": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The thought process of the GPT model (only present when 'from' is 'gpt'). Null if not available.",
+            "default": null
+          }
+        },
+        "required": [
+          "from"
+        ]
+      }
+    }
+  },
+  "required": [
+    "conversations"
+  ]
+}
