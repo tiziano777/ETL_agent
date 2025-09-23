@@ -31,38 +31,38 @@ mapping_schema_prompt: >
     **src_field**: The path of the field in the src_schema. Use "N/A" if there is no direct source.
     **target_field**: The path of the field in the target_schema.
     **transformation**: The transformation explanation, fixed value, or enum mapping dict.
+  
   Rules:
-  - Mappping can be complete, if there is an array, for each field you must specify the index.
-    example: messages[].functioncall is not permitted, you must specify the index like messages[0].functioncall
-  - Don't forget to map every message in conversation array!
-  - If src_field is not null, src_field can be mapped to target_field easily, and transformation must contain a descriptive string.
-  - If src_field is not null, and the target_field is an enum, transformation must contain a dict mapping source values to target enum values.
-    example:{{
-      "src_field": "messages[0].role",
-      "target_field": "messages[0].role",
+  - To handle dynamic length arrays (like conversations), use a special placeholder '[]' in the path to indicate that the mapping should apply to every element of the array.
+    example: instead of "messages[0].content", use "messages[].content".
+  - If src_field is not N/A, src_field can be mapped to target_field easily, and transformation must contain a descriptive string.
+  - If src_field is not N/A, and the target_field is an enum, transformation must contain a dict mapping source values to target enum values.
+    example:
+    {{
+      "src_field": "messages[].role",
+      "target_field": "messages[].role",
       "transformation": {{
         "human": "USER",
         "gpt": "ASSISTANT"
         }}
       }}
-  - If src_field is null, transformation must contain only the exact fixed value to be inserted (e.g., "USER" or "ASSITANT")
-  - you have also to map metadatas (fields starting with _) in the target_schema by direct assignment of fixed values.
+  - If src_field is N/A, transformation field must contain only the exact fixed value to be inserted (e.g., "USER" or "ASSITANT", or metadata values)
+  - You have also to map metadatas (fields starting with _), if metadata fields in mapping can be applied to target schema, you can set src_field to N/A and insert fixed value for target_field in transformation field.
   
   Output format example: 
   [
         {{
-          'src_field': 'source_field_path | null',
-          'target_field': 'target_field_path | _metadata_field',
+          'src_field': 'source_field_path | N/A',
+          'target_field': 'target_field_path | _metadata_field (with src_field N/A)',
           'transformation': 'transformation_logic | fixed_value'
         }},
         ...
   ]
-  
-  Ensure the output is valid JSON and adheres to the specified structure.
+
   src_schema and metadata:
   {metadata}
   {src_schema}
-  
+
   target_schema:
   {dst_schema}
 

@@ -5,75 +5,22 @@
     "transformation": "fc_chat_st"
   },
   {
-    "src_field": "N/A",
-    "target_field": "system",
-    "transformation": null
-  },
-  {
-    "src_field": "N/A",
-    "target_field": "context",
-    "transformation": null
-  },
-  {
-    "src_field": "conversations[0].from",
-    "target_field": "messages[0].role",
+    "src_field": "conversations[].from",
+    "target_field": "messages[].role",
     "transformation": {
       "human": "USER",
       "gpt": "ASSISTANT"
     }
   },
   {
-    "src_field": "conversations[0].value",
-    "target_field": "messages[0].content",
-    "transformation": "Direct mapping"
+    "src_field": "conversations[].value",
+    "target_field": "messages[].content",
+    "transformation": "Copy the content of the conversation turn."
   },
   {
-    "src_field": "N/A",
-    "target_field": "messages[0].functioncall",
-    "transformation": null
-  },
-  {
-    "src_field": "N/A",
-    "target_field": "messages[0].think",
-    "transformation": null
-  },
-  {
-    "src_field": "N/A",
-    "target_field": "messages[0].context",
-    "transformation": null
-  },
-  {
-    "src_field": "conversations[1].from",
-    "target_field": "messages[1].role",
-    "transformation": {
-      "human": "USER",
-      "gpt": "ASSISTANT"
-    }
-  },
-  {
-    "src_field": "conversations[1].value",
-    "target_field": "messages[1].content",
-    "transformation": "Direct mapping"
-  },
-  {
-    "src_field": "N/A",
-    "target_field": "messages[1].functioncall",
-    "transformation": null
-  },
-  {
-    "src_field": "conversations[1].think",
-    "target_field": "messages[1].think",
-    "transformation": "Direct mapping"
-  },
-  {
-    "src_field": "N/A",
-    "target_field": "messages[1].context",
-    "transformation": null
-  },
-  {
-    "src_field": "N/A",
-    "target_field": "_lang",
-    "transformation": null
+    "src_field": "conversations[].think",
+    "target_field": "messages[].think",
+    "transformation": "Copy GPT's thought process."
   },
   {
     "src_field": "N/A",
@@ -82,17 +29,7 @@
   },
   {
     "src_field": "N/A",
-    "target_field": "_filename",
-    "transformation": null
-  },
-  {
-    "src_field": "N/A",
     "target_field": "_subpath",
     "transformation": "data"
-  },
-  {
-    "src_field": "N/A",
-    "target_field": "_id_hash",
-    "transformation": null
   }
 ]

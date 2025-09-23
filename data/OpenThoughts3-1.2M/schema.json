@@ -14,7 +14,7 @@
         "string",
         "null"
       ],
-      "description": "Source of the problem/task (e.g., stackexchange_codegolf). Null if not available.",
+      "description": "Source of the problem/task. Null if not available.",
       "default": null
     },
     "domain": {
@@ -22,7 +22,7 @@
         "string",
         "null"
       ],
-      "description": "Domain of the problem/task (e.g., code). Null if not available.",
+      "description": "Domain of the problem/task. Null if not available.",
       "default": null
     },
     "conversations": {
@@ -37,27 +37,24 @@
               "human",
               "gpt"
             ],
-            "description": "Indicates who sent the message ('human' or 'gpt')."
+            "description": "Indicates who is speaking (human or gpt)."
           },
           "value": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "description": "The message content. Null if not available.",
-            "default": null
+            "type": "string",
+            "description": "The content of the conversation turn."
           },
           "think": {
             "type": [
               "string",
               "null"
             ],
-            "description": "The thought process of the GPT model (only present when 'from' is 'gpt'). Null if not available.",
+            "description": "GPT's thought process (only present when 'from' is 'gpt'). Null if not available.",
             "default": null
           }
         },
         "required": [
-          "from"
+          "from",
+          "value"
         ]
       }
     }
