@@ -26,7 +26,7 @@ langfuse_handler = CallbackHandler()
 
 def show_select_target_schema(st):
     """Mostra la sezione di selezione del target schema (STEP 5)."""
-    st.subheader("5. Seleziona Schema di Destinazione")
+    st.subheader("Seleziona Schema di Destinazione")
     st.write("Seleziona uno schema JSON esistente da usare come destinazione per la trasformazione.")
     
     if not SCHEMA_DIR or not os.path.isdir(SCHEMA_DIR):
@@ -39,7 +39,7 @@ def show_select_target_schema(st):
         st.warning("Nessun file schema JSON trovato nella directory specificata.")
         if st.button("⬅️ Torna Indietro", key="back_to_prev_stage_btn"):
             # Assumendo che lo step precedente sia 'schema_extraction_options' o simile
-            st.session_state.current_stage = "schema_extraction_options"
+            st.session_state.current_stage = "action_selection"
             st.rerun()
         return
 
@@ -74,7 +74,7 @@ def show_select_target_schema(st):
     
     with col1:
         if st.button("⬅️ Torna Indietro", key="back_to_options_from_target_btn", use_container_width=True):
-            st.session_state.current_stage = "schema_extraction_options" # O lo stage corretto
+            st.session_state.current_stage = "action_selection" # O lo stage corretto
             st.rerun()
 
     with col2:
@@ -88,7 +88,7 @@ def show_select_target_schema(st):
 
 def show_mapping_generation(st):
     """Gestisce la visualizzazione e l'esecuzione della pipeline di mapping (STEP 6)."""
-    st.subheader("6. Generazione e Validazione del Mapping")
+    st.subheader("Generazione e Validazione del Mapping")
 
     # Inizializzazione degli stati di sessione specifici per il mapping
     st.session_state.setdefault("pipeline_running", False)
@@ -240,4 +240,41 @@ def show_mapping_generation(st):
                 del st.session_state[key]
         st.rerun()
 
+def show_mapping_results(st):
+    """Visualizza i risultati finali del mapping."""
+    st.subheader("🎉 Risultati del Mapping")
+    st.write("Confronta i campioni grezzi a sinistra con i dati mappati a destra per validare il risultato.")
+
+    final_state = st.session_state.get("state")
+    if final_state and hasattr(final_state, 'get'):
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("**Samples Originali**")
+            st.json(final_state.get("samples"))
+
+        with col2:
+            st.markdown("**Risultato del Mapping**")
+            st.json(final_state.get("mapped_samples"))
+        
+        st.markdown("---")
+        
+        if st.button("⬅️ Torna alla Generazione Mapping"):
+            st.session_state.current_stage = "mapping_generation"
+            st.session_state.pipeline_running = False
+            st.session_state.manual_edit_active = False
+            st.session_state.interrupt = None
+            st.rerun()
+        if st.button("Torna alla Home"):
+            st.session_state.current_stage = "action_selection"
+            st.rerun()
+
+    else:
+        st.warning("Nessun risultato di mapping trovato. Per favore, esegui prima la pipeline.")
+        if st.button("Torna alla Mappatura"):
+            st.session_state.current_stage = "mapping_generation"
+            st.rerun()
+        if st.button("Torna alla Home"):
+            st.session_state.current_stage = "action_selection"
+            st.rerun()
         

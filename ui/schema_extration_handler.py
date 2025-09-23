@@ -10,7 +10,6 @@ from states.src_schema_state import State
 from langfuse import Langfuse
 from langfuse.langchain import CallbackHandler
 
-
 import dotenv
 dotenv.load_dotenv()
 BASE_PATH = os.getenv("BASE_PATH", "")
@@ -26,13 +25,13 @@ langfuse_handler = CallbackHandler()
 
 def show_schema_options(st):
     """Mostra la sezione di estrazione o importazione dello schema."""
-    st.subheader("3. Estrazione dello Schema")
+    st.subheader("Estrazione dello Schema")
     st.write("Vuoi estrarre lo schema dal dataset o ne hai già uno?")
     
     col1, col2 = st.columns([1, 1])
     with col1:
-        if st.button("⬅️ Torna a Inserimento Metadati"):
-            st.session_state.current_stage = "metadata"
+        if st.button("⬅️ Torna alla Home"):
+            st.session_state.current_stage = "action_selection"
             st.rerun()
     
     st.markdown("---")
@@ -54,7 +53,7 @@ def show_schema_options(st):
             st.rerun()
         
     if st.button("📄 Ho già il Source Schema del dataset"):
-        st.session_state.current_stage = "select_target_schema"
+        st.session_state.current_stage = "action_selection"
         st.rerun()
 
 def show_schema_extraction(st):
@@ -62,12 +61,18 @@ def show_schema_extraction(st):
     Mostra la sezione di estrazione dello schema e gestisce la pipeline
     con cicli di feedback e validazione.
     """
-    st.subheader("4. Estrazione dello Schema")
+    st.subheader("Estrazione dello Schema")
+
+    # Avvia la pipeline solo se l'utente ha già scelto la tecnica di estrazione
+    if "deterministic_extraction" not in st.session_state:
+        st.info("Seleziona prima la tecnica di estrazione schema nella schermata precedente.")
+        return
 
     # Inizializzazione degli stati di sessione
     st.session_state.setdefault("pipeline_running", False)
     st.session_state.setdefault("manual_edit_active", False)
     st.session_state.setdefault("interrupt", None)
+    st.session_state.setdefault("validation_success", False) # Nuovo stato per la validazione
 
     # ===================================================================
     # FUNZIONE HELPER PER GESTIRE LA RIPRESA DELLA PIPELINE
@@ -88,26 +93,31 @@ def show_schema_extraction(st):
                 st.session_state.interrupt = result["__interrupt__"]
                 st.session_state.state = result
                 st.session_state.manual_edit_active = False # Assicura di tornare alla vista di review
+                st.session_state.validation_success = False # Resetta lo stato di successo
             else:
                 # La pipeline è terminata con successo
                 st.success("✅ Pipeline completata con successo!")
-                st.json(result)
-                st.balloons()
                 st.session_state.interrupt = None
                 st.session_state.pipeline_running = False
                 st.session_state.manual_edit_active = False
-                st.session_state.current_stage = "select_target_schema"
+                st.session_state.state = result # Aggiorna lo stato finale
+                # Controlla se lo schema è valido per mostrare la schermata di successo
+                if st.session_state.state.get("valid"):
+                    st.session_state.validation_success = True
+                else:
+                    st.session_state.validation_success = False
 
         except Exception as e:
             st.error(f"Errore durante la ripresa della pipeline: {e}")
             st.error(traceback.format_exc())
-        
+            st.session_state.validation_success = False
+            
         st.rerun() # Aggiorna sempre l'interfaccia dopo un'azione
 
     # ===================================================================
     # 1. AVVIO INIZIALE DELLA PIPELINE
     # ===================================================================
-    if not st.session_state.pipeline_running and not st.session_state.manual_edit_active:
+    if not st.session_state.pipeline_running and not st.session_state.manual_edit_active and not st.session_state.validation_success:
         if "thread_id" not in st.session_state:
             st.session_state.thread_id = str(uuid.uuid4())
 
@@ -123,10 +133,10 @@ def show_schema_extraction(st):
         )
         
         if st.session_state.get("deterministic_extraction", False):
-            st.subheader("4. Estrazione Deterministicamente dello Schema")
+            st.subheader("Estrazione Deterministicamente dello Schema")
             init_state = init_state.copy(update={"deterministic": True})
         else:
-            st.subheader("4. Estrazione Automatica dello Schema (LLM)")
+            st.subheader("Estrazione Automatica dello Schema (LLM)")
         
         st.write("La pipeline sta analizzando il tuo dataset per estrarre lo schema...")
         
@@ -135,7 +145,6 @@ def show_schema_extraction(st):
         try:
             with st.spinner("Avvio della pipeline..."):
                 result = st.session_state.src_schema_graph.invoke(init_state, config=config)
-            
             st.session_state.interrupt = result.get("__interrupt__")
             st.session_state.state = result
             st.session_state.pipeline_running = True
@@ -145,7 +154,31 @@ def show_schema_extraction(st):
             st.error(traceback.format_exc())
 
     # ===================================================================
-    # 2. INTERFACCIA DI MODIFICA MANUALE
+    # 2. INTERFACCIA DI SUCCESSO E REINDIRIZZAMENTO
+    # ===================================================================
+    elif st.session_state.validation_success:
+        st.success("✅ Schema validato correttamente!")
+        st.subheader("Schema visualizzato a schermo")
+        # Visualizza lo schema
+        st.json(st.session_state.state.get("generated_schema", "{}"))
+        
+        st.markdown("---")
+        
+        col1, col2 = st.columns(2)
+        if col1.button("✅ OK"):
+            # Resetta gli stati e torna alla home
+            for key in ["pipeline_running", "manual_edit_active", "interrupt", "state", "thread_id", "validation_success"]:
+                if key in st.session_state:
+                    del st.session_state[key]
+            st.session_state.current_stage = "action_selection"
+            st.rerun()
+        if col2.button("⬅️ Torna Indietro"):
+            # Resetta lo stato di successo e torna alla schermata di estrazione per ritentare
+            st.session_state.validation_success = False
+            st.rerun()
+
+    # ===================================================================
+    # 3. INTERFACCIA DI MODIFICA MANUALE
     # ===================================================================
     elif st.session_state.manual_edit_active:
         st.markdown("---")
@@ -175,7 +208,7 @@ def show_schema_extraction(st):
             st.rerun()
 
     # ===================================================================
-    # 3. INTERFACCIA DI REVIEW (FEEDBACK UMANO)
+    # 4. INTERFACCIA DI REVIEW (FEEDBACK UMANO)
     # ===================================================================
     elif st.session_state.interrupt:
         interrupt = st.session_state.interrupt
@@ -211,7 +244,7 @@ def show_schema_extraction(st):
             if cols[1].button("🔄 Ritenta con Feedback", use_container_width=True):
                 resume_pipeline({"action": "continue", "feedback": feedback_text})
             if cols[2].button("↩️ Ricomincia da Capo", use_container_width=True):
-                 resume_pipeline({"action": "restart"})
+                    resume_pipeline({"action": "restart"})
             if cols[3].button("✏️ Modifica Manuale", use_container_width=True):
                 st.session_state.manual_edit_active = True
                 st.rerun()
@@ -224,14 +257,3 @@ def show_schema_extraction(st):
             if cols[1].button("✏️ Modifica Manuale", use_container_width=True):
                 st.session_state.manual_edit_active = True
                 st.rerun()
-
-    # ===================================================================
-    # Pulsante per tornare indietro
-    # ===================================================================
-    if st.button("⬅️ Torna a Opzioni Schema"):
-        st.session_state.current_stage = "schema_extraction_options"
-        # Resetta tutti gli stati della pipeline per una esecuzione pulita
-        for key in ["pipeline_running", "manual_edit_active", "interrupt", "state", "thread_id"]:
-            if key in st.session_state:
-                del st.session_state[key]
-        st.rerun()

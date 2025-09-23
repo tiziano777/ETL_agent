@@ -56,7 +56,7 @@ def show_dataset_selection(st):
 def show_metadata_editor(st):
     """Mostra la sezione di gestione e modifica dei metadati."""
 
-    st.subheader("2. Inserisci Metadati del Dataset")
+    st.subheader("Inserisci Metadati del Dataset")
     st.write("Inserisci e modifica i metadati chiave per il tuo dataset.")
 
     # Pulsante per tornare alla selezione
@@ -228,7 +228,7 @@ def show_metadata_editor(st):
                     json.dump(st.session_state.metadata_entries, f, indent=2, ensure_ascii=False)
                 st.success("Metadati salvati con successo!")
                 st.session_state.metadata_confirmed = True
-                st.session_state.current_stage = "schema_extraction_options"
+                st.session_state.current_stage = "action_selection"
                 st.rerun()
             except Exception as e:
                 st.error(f"Errore durante il salvataggio dei metadati: {e}")

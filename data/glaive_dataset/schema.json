@@ -1,18 +1,16 @@
 {
+  "$schema": "http://json-schema.org/schema#",
   "type": "object",
   "properties": {
     "prompt": {
-      "type": "string",
-      "description": "The prompt or question posed to the model."
+      "type": "string"
     },
     "response": {
-      "type": "string",
-      "description": "The model's response to the prompt."
+      "type": "string"
     }
   },
   "required": [
     "prompt",
     "response"
-  ],
-  "description": "Schema for a prompt and response pair."
+  ]
 }
