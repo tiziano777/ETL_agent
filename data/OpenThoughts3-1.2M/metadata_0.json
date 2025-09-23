@@ -1,7 +1,4 @@
 {
-  "_tags": "reasoning:mathematics:code:science",
-  "_dataset_name": "OpenThoughts3-1.2M",
   "_subpath": "data",
-  "_license": "apache-2.0",
-  "_size": "28.2GB"
+  "_file_name": "glaive"
 }

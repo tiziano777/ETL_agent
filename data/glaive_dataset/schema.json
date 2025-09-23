@@ -3,22 +3,16 @@
   "properties": {
     "prompt": {
       "type": "string",
-      "description": "The prompt provided to the model.",
-      "examples": [
-        "Se 'caldo' sta a 'freddo' come 'giorno' sta a 'notte', a cosa sta 'alto' in relazione a 'basso'? Analizza la relazione di opposti."
-      ]
+      "description": "The prompt or question posed to the model."
     },
     "response": {
       "type": "string",
-      "description": "The model's response to the prompt.",
-      "examples": [
-        "Alto sta a basso, perché alto e basso sono opposti, così come caldo e freddo o giorno e notte."
-      ]
+      "description": "The model's response to the prompt."
     }
   },
   "required": [
     "prompt",
     "response"
   ],
-  "description": "Schema for a prompt-response pair."
+  "description": "Schema for a prompt and response pair."
 }

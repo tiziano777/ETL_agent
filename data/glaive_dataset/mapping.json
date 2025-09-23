@@ -2,12 +2,22 @@
   {
     "src_field": "N/A",
     "target_field": "template",
-    "transformation": "chat_template"
+    "transformation": "fc_chat_st"
   },
   {
     "src_field": "N/A",
     "target_field": "system",
-    "transformation": "null"
+    "transformation": null
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "context",
+    "transformation": null
+  },
+  {
+    "src_field": "prompt",
+    "target_field": "messages[0].content",
+    "transformation": "Map prompt to the first user message content"
   },
   {
     "src_field": "N/A",
@@ -15,9 +25,9 @@
     "transformation": "USER"
   },
   {
-    "src_field": "prompt",
-    "target_field": "messages[0].content",
-    "transformation": "Copy the value of the prompt field to the content field of the first message object."
+    "src_field": "response",
+    "target_field": "messages[1].content",
+    "transformation": "Map response to the second assistant message content"
   },
   {
     "src_field": "N/A",
@@ -25,38 +35,48 @@
     "transformation": "ASSISTANT"
   },
   {
-    "src_field": "response",
-    "target_field": "messages[1].content",
-    "transformation": "Copy the value of the response field to the content field of the second message object."
+    "src_field": "N/A",
+    "target_field": "messages[0].functioncall",
+    "transformation": null
   },
   {
     "src_field": "N/A",
-    "target_field": "function_call",
-    "transformation": "null"
+    "target_field": "messages[0].think",
+    "transformation": null
   },
   {
     "src_field": "N/A",
-    "target_field": "think",
-    "transformation": "null"
+    "target_field": "messages[0].context",
+    "transformation": null
   },
   {
     "src_field": "N/A",
-    "target_field": "context",
-    "transformation": "null"
+    "target_field": "messages[1].functioncall",
+    "transformation": null
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "messages[1].think",
+    "transformation": null
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "messages[1].context",
+    "transformation": null
   },
   {
     "src_field": "N/A",
     "target_field": "_lang",
-    "transformation": "null"
+    "transformation": null
   },
   {
     "src_field": "N/A",
     "target_field": "_dataset_name",
-    "transformation": "null"
+    "transformation": null
   },
   {
     "src_field": "N/A",
-    "target_field": "_file_name",
+    "target_field": "_filename",
     "transformation": "glaive"
   },
   {
@@ -67,6 +87,6 @@
   {
     "src_field": "N/A",
     "target_field": "_id_hash",
-    "transformation": "null"
+    "transformation": null
   }
 ]
