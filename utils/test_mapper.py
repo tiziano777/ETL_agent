@@ -1,4 +1,4 @@
-from mapper import Mapper
+from mappings.mapper import Mapper
 import json
 
 mapper = Mapper()

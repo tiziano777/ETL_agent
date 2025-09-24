@@ -6,7 +6,7 @@ import json
 from json_repair import repair_json
 import traceback
 
-from utils.mapper import Mapper
+from mappings.mapper import Mapper
 
 class ValidationNode:
     """

@@ -11,6 +11,6 @@ This project implements a modular, human-in-the-loop ETL pipeline using LangGrap
 
 ## Quick Start
 1. Install requirements: `pip install -r requirements.txt`
-2. Run the Streamlit dashboard: `streamlit run streamlit_app.py`
+2. Run the Streamlit dashboard: `streamlit run dashboard.py`
 
 
