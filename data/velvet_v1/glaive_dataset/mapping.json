@@ -1,0 +1,128 @@
+[
+  {
+    "src_field": "N/A",
+    "target_field": "template",
+    "transformation": "fc_chat_st",
+    "data_type": "string",
+    "info": "Setting the template to a fixed value as per the schema's default and enum options. This indicates a specific chat structure."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "system",
+    "transformation": null,
+    "data_type": "string",
+    "info": "System prompt is not available in the source schema, setting to null."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "context",
+    "transformation": null,
+    "data_type": "string",
+    "info": "Global context is not available in the source schema, setting to null."
+  },
+  {
+    "src_field": "prompt",
+    "target_field": "messages[0].content",
+    "transformation": "src",
+    "data_type": "string",
+    "info": "Mapping the 'prompt' field to the 'content' field of the first message in the 'messages' array. This represents the user's input."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "messages[0].role",
+    "transformation": "USER",
+    "data_type": "string",
+    "info": "Setting the 'role' field of the first message to 'USER' to indicate the user's turn in the conversation."
+  },
+  {
+    "src_field": "response",
+    "target_field": "messages[1].content",
+    "transformation": "src",
+    "data_type": "string",
+    "info": "Mapping the 'response' field to the 'content' field of the second message in the 'messages' array. This represents the assistant's response."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "messages[1].role",
+    "transformation": "ASSISTANT",
+    "data_type": "string",
+    "info": "Setting the 'role' field of the second message to 'ASSISTANT' to indicate the assistant's turn in the conversation."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "messages[0].functioncall",
+    "transformation": null,
+    "data_type": "object",
+    "info": "Function call is not available in the source schema, setting to null."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "messages[1].functioncall",
+    "transformation": null,
+    "data_type": "object",
+    "info": "Function call is not available in the source schema, setting to null."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "messages[0].think",
+    "transformation": null,
+    "data_type": "string",
+    "info": "Think is not available in the source schema, setting to null."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "messages[1].think",
+    "transformation": null,
+    "data_type": "string",
+    "info": "Think is not available in the source schema, setting to null."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "messages[0].context",
+    "transformation": null,
+    "data_type": "string",
+    "info": "Message context is not available in the source schema, setting to null."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "messages[1].context",
+    "transformation": null,
+    "data_type": "string",
+    "info": "Message context is not available in the source schema, setting to null."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "_lang",
+    "transformation": null,
+    "data_type": "string",
+    "info": "Language is not available in the source schema, setting to null."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "_dataset_name",
+    "transformation": null,
+    "data_type": "string",
+    "info": "Dataset name is not available in the source schema, setting to null."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "_filename",
+    "transformation": "glaive",
+    "data_type": "string",
+    "info": "Mapping the metadata '_file_name' to the target '_filename'. Using the actual file name from metadata."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "_subpath",
+    "transformation": "data",
+    "data_type": "string",
+    "info": "Mapping the metadata '_subpath' to the target '_subpath'. Using the actual subpath from metadata."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "_id_hash",
+    "transformation": null,
+    "data_type": "string",
+    "info": "Id hash is not available in the source schema, setting to null."
+  }
+]

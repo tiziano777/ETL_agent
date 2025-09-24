@@ -122,7 +122,7 @@ def load_dataset_samples(data_folder, k=1):
         print(f"La cartella dei dati '{data_folder}' non esiste.")
         return None
 
-    supported_extensions = ['.jsonl', '.csv', '.gz', '.parquet', '.jsonl.gz']
+    supported_extensions = ['json', '.jsonl', '.csv', '.gz', '.parquet', '.jsonl.gz']
     data_files = [f for f in os.listdir(data_folder) if any(f.endswith(ext) for ext in supported_extensions)]
     
     if not data_files:
@@ -132,7 +132,7 @@ def load_dataset_samples(data_folder, k=1):
     file_path = os.path.join(data_folder, data_files[0])
     
     try:
-        if file_path.endswith('.jsonl'):
+        if file_path.endswith('.jsonl') or file_path.endswith('.json'):
             with open(file_path, 'r', encoding='utf-8') as f:
                 samples = [json.loads(line) for line in f.readlines()[:k]]
         

@@ -3,55 +3,9 @@ import json
 
 import dotenv
 dotenv.load_dotenv()
-BASE_PATH = os.getenv("BASE_PATH", "")
 
-METADATA_DIR = "./config/metadata_0.json"
-
-def show_dataset_selection(st):
-    """Mostra la sezione di selezione del dataset e del sottocartella."""
-    st.subheader("1. Seleziona Dataset e Sottocartella")
-    if not BASE_PATH or not os.path.isdir(BASE_PATH):
-        st.error("BASE_PATH non configurato correttamente nel file `.env`.")
-        return
-
-    # Sezione per la selezione del dataset principale
-    folders = [f for f in os.listdir(BASE_PATH) if os.path.isdir(os.path.join(BASE_PATH, f))]
-    search_query = st.text_input("Cerca dataset/cartella", key="dataset_search")
-    filtered_folders = [f for f in folders if search_query.lower() in f.lower()]
-    
-    selected_main_folder = st.selectbox(
-        "Seleziona una cartella del dataset",
-        options=[""] + filtered_folders,
-        index=0,
-        key="selected_folder_box"
-    )
-
-    # Aggiorna lo stato della sessione solo se la selezione cambia
-    if selected_main_folder != st.session_state.get("selected_folder", ""):
-        st.session_state.selected_folder = selected_main_folder
-        # Pulisce la selezione del sottocartella quando la cartella principale cambia
-        st.session_state.selected_subfolder = ""
-        st.rerun()
-
-    # Se un dataset è stato selezionato, mostra il selettore per le sottocartelle
-    if st.session_state.selected_folder:
-        dataset_path = os.path.join(BASE_PATH, st.session_state.selected_folder)
-        subfolders = [d for d in os.listdir(dataset_path) if os.path.isdir(os.path.join(dataset_path, d))]
-        
-        # Sezione per la selezione del sottocartella
-        st.session_state.selected_subfolder = st.selectbox(
-            "Seleziona la sottocartella con i dati",
-            options=[""] + subfolders,
-            index=0,
-            key="selected_subfolder_box"
-        )
-        
-        # Pulsante di conferma per procedere
-        if st.session_state.selected_subfolder:
-            if st.button("✅ Conferma Selezione"):
-                st.success(f"Hai selezionato il dataset: {st.session_state.selected_folder}, sottocartella: {st.session_state.selected_subfolder}")
-                st.session_state.current_stage = "metadata"
-                st.rerun()
+BASE_PATH = os.getenv("BASE_PATH")
+METADATA_DIR = os.getenv("METADATA_DIR")
 
 def show_metadata_editor(st):
     """Mostra la sezione di gestione e modifica dei metadati."""
@@ -63,12 +17,16 @@ def show_metadata_editor(st):
     col1, col2 = st.columns([1, 1])
     with col1:
         if st.button("⬅️ Torna alla selezione del Dataset"):
-            st.session_state.current_stage = "dataset_selection"
+            st.session_state.selected_version = ""
+            st.session_state.selected_dataset_name = ""
+            del st.session_state.metadata_entries
+            st.session_state.metadata_loaded = False
             st.session_state.metadata_confirmed = False
+            st.session_state.current_stage = "dataset_selection"
             st.rerun()
 
     # Path
-    dataset_path = os.path.join(BASE_PATH, st.session_state.selected_folder)
+    dataset_path = os.path.join(BASE_PATH, st.session_state.selected_version, st.session_state.selected_dataset_name)
     metadata_file = os.path.join(dataset_path, "metadata_0.json")
 
     # =============================

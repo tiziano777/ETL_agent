@@ -7,20 +7,9 @@ import traceback
 from langgraph.types import Command
 from states.src_schema_state import State
 
-from langfuse import Langfuse
-from langfuse.langchain import CallbackHandler
-
 import dotenv
 dotenv.load_dotenv()
 BASE_PATH = os.getenv("BASE_PATH", "")
-
-# Inizializzazione di Langfuse
-langfuse = Langfuse( 
-    public_key= os.environ.get('LANGFUSE_PUBLIC_KEY'),
-    secret_key= os.environ.get('LANGFUSE_PRIVATE_KEY'), 
-    host= os.environ.get('LANGFUSE_STRING_CONNECTION')
-)
-langfuse_handler = CallbackHandler()
 
 
 def show_schema_options(st):
@@ -56,7 +45,7 @@ def show_schema_options(st):
         st.session_state.current_stage = "action_selection"
         st.rerun()
 
-def show_schema_extraction(st):
+def show_schema_extraction(st, langfuse_handler):
     """
     Mostra la sezione di estrazione dello schema e gestisce la pipeline
     con cicli di feedback e validazione.
@@ -127,9 +116,11 @@ def show_schema_extraction(st):
             st.error(f"Errore nel parsing dei campioni JSON: {e}")
             return
 
+        print("Samples caricati per l'estrazione schema:", samples)
+
         init_state = State(
             samples=samples,
-            output_path=os.path.join(BASE_PATH, st.session_state.selected_folder, "schema.json"),
+            output_path=os.path.join(BASE_PATH, st.session_state.selected_version, st.session_state.selected_dataset_name, "schema.json"),
         )
         
         if st.session_state.get("deterministic_extraction", False):

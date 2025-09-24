@@ -1,0 +1,42 @@
+{
+  "type": "object",
+  "properties": {
+    "system_prompt": {
+      "type": "string",
+      "description": "The system prompt guiding the AI assistant's behavior."
+    },
+    "documents": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "A string containing one or more documents, potentially separated by delimiters like 'Document:N'.",
+      "default": null
+    },
+    "question": {
+      "type": "string",
+      "description": "The user's question or query."
+    },
+    "answer_mode": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "Mixed",
+        "Grounded"
+      ],
+      "description": "The mode used to generate the answer.",
+      "default": null
+    },
+    "answer": {
+      "type": "string",
+      "description": "The AI assistant's answer to the question, potentially citing documents."
+    }
+  },
+  "required": [
+    "system_prompt",
+    "question",
+    "answer"
+  ]
+}

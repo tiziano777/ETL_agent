@@ -1,6 +1,6 @@
 import pandas as pd
 
-dataset_path = "hf://datasets/open-thoughts/OpenThoughts3-1.2M/data/train-00000-of-00120.parquet"
+dataset_path = "hf://datasets/akoksal/muri-it/data/test-00000-of-00001.parquet"
 
 # Legge il parquet remoto direttamente
 df = pd.read_parquet(dataset_path)

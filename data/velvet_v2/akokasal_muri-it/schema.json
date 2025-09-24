@@ -1,0 +1,57 @@
+{
+  "type": "object",
+  "properties": {
+    "input": {
+      "type": "string",
+      "description": "The input question or query."
+    },
+    "output": {
+      "type": "string",
+      "description": "The generated answer or response to the input question."
+    },
+    "dataset_name": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The name of the dataset the sample belongs to. Null if not available.",
+      "default": null
+    },
+    "subdataset_name": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The name of the sub-dataset the sample belongs to. Null if not available.",
+      "default": null
+    },
+    "language": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The language code of the input and output (e.g., 'fin' for Finnish). Null if not available.",
+      "default": null
+    },
+    "split": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The data split the sample belongs to (e.g., 'test', 'train', 'validation'). Null if not available.",
+      "default": null
+    },
+    "language_name": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The full name of the language (e.g., 'Finnish'). Null if not available.",
+      "default": null
+    }
+  },
+  "required": [
+    "input",
+    "output"
+  ]
+}

@@ -17,8 +17,8 @@ feedback_prompt: >
   {feedback}
 
 ######################################################
-
-mapping_schema_prompt: >
+# Old mapping prompt, do not edit
+mapping_schema_prompt_v2: >
   You are an expert data transformation and mapping assistant.
   Your task is to generate a JSON mapping file that describes how to transform data from a source (src) JSON schema to a destination (target) JSON schema.
   The mapping file must be in a standard JSON format.
@@ -69,6 +69,71 @@ mapping_schema_prompt: >
   actual mapping_schema:
   {mapping_schema}
 
+#new mapping prompt
+mapping_schema_prompt: >
+  You are an expert data transformation and mapping assistant.
+  Your task is to generate a JSON mapping file that describes how to transform data from a source (src) JSON schema to a destination (target) JSON schema.
+  The mapping file must be in a standard JSON format.
+
+  Instructions:
+
+  Analyze the fields in the src_schema and target_schema.
+  Generate a JSON array called mapping.json:
+  Each object within the mappings array must have the following properties:
+    **src_field**: The path of the field in the src_schema. Use "N/A" if there is no direct source.
+    **target_field**: The path of the field in the target_schema.
+    **transformation**: Fixed value to assign when src_field is "N/A", or enum mapping dict when target is enum, or "src" when direct mapping.
+    **data_type**: The expected data type of the target field (string, integer, number, boolean, array, object).
+    **info**: Descriptive explanation of the mapping logic and transformation rationale.
+  
+  Rules:
+  - To handle dynamic length arrays (like conversations), use a special placeholder '[]' in the path to indicate that the mapping should apply to every element of the array.
+    example: instead of "messages[0].content", use "messages[].content".
+  - For nested arrays like "messages[].attachments[].url", use multiple '[]' placeholders: "messages[].attachments[].url".
+  
+  - **transformation field usage:**
+    - If src_field is "N/A": transformation MUST contain the exact fixed value to insert (e.g., "USER", "ASSISTANT", metadata values)
+    - If target field is an enum: transformation MUST contain a dict mapping source values to target enum values
+    - If direct mapping (src_field and target_field are present): transformation should be "src" 
+    - transformation should NEVER contain descriptive text
+  
+  - **data_type field**: Always specify the expected JSON schema type of the target field:
+    - "string" for text values
+    - "integer" for whole numbers  
+    - "number" for decimals
+    - "boolean" for true/false
+    - "array" for lists
+    - "object" for nested structures
+  
+  - **info field**: Contains descriptive explanation of:
+    - Why this mapping was chosen
+    - What transformation logic is applied
+    - Any business rules or context
+    - Handling of edge cases
+
+  - You must map metadata dataset fields (fields starting with _) when applicable to target schema at sample level. Set src_field to "N/A" and provide fixed value in transformation.
+
+  Output format example: 
+  [
+    {{
+      "src_field": "source_field_path | N/A",
+      "target_field": "target_field_path",
+      "transformation": "src | fixed_value | {{enum_mapping_dict}}",
+      "data_type": "string | integer | number | boolean | array | object",
+      "info": "Descriptive explanation of mapping logic and rationale"
+    }},
+    ...
+  ]
+
+  src_schema and metadata:
+  {metadata}
+  {src_schema}
+
+  target_schema:
+  {dst_schema}
+
+  actual mapping_schema:
+  {mapping_schema}
 
 mapping_schema_feedback_prompt: >
   \n

@@ -1,10 +1,5 @@
 import streamlit as st
-import uuid
-import json
-import os
-import yaml
-import ast
-import traceback
+import os, yaml
 
 from langchain_google_genai import ChatGoogleGenerativeAI
 
@@ -24,38 +19,21 @@ from nodes.mapping_schema_nodes.human_review_node import HumanReviewNode as Mapp
 from nodes.mapping_schema_nodes.validation_node import ValidationNode as MappingValidationNode
 from nodes.mapping_schema_nodes.mapping_writer_node import MappingWriter 
 
-from ui.metadata_handler import show_dataset_selection, show_metadata_editor
+from ui.metadata_handler import show_metadata_editor
 from ui.schema_extration_handler import show_schema_options, show_schema_extraction
 from ui.mapping_generation_handler import show_select_target_schema, show_mapping_generation, show_mapping_results
+from ui.action_selection_handler import show_action_selection
+from ui.dataset_selection_handler import show_dataset_selection  
 
 from utils.sample_reader import load_dataset_samples
+
+from langfuse import Langfuse
+from langfuse.langchain import CallbackHandler
+
 
 import dotenv
 dotenv.load_dotenv()
 BASE_PATH = os.getenv("BASE_PATH", "")
-
-# --- Nuova funzione per la selezione dell'azione ---
-def show_action_selection(st_app):
-    st_app.header("Scegli l'Operazione")
-    st_app.write("Quale operazione desideri eseguire sul tuo dataset?")
-    
-    col1, col2, col3 = st_app.columns(3)
-    with col1:
-        # Bottone per lanciare la pipeline di estrazione dello schema
-        if st_app.button("Estrai Schema", use_container_width=True):
-            st_app.session_state.current_stage = "schema_extraction_options"
-            st_app.rerun()
-    with col2:
-        # Bottone per lanciare la pipeline di generazione del mapping
-        if st_app.button("Genera Mapping", use_container_width=True):
-            st_app.session_state.current_stage = "select_target_schema"
-            st_app.rerun()
-    with col3:
-        # Bottone per tornare a modificare i metadati
-        if st_app.button("Modifica Metadati", use_container_width=True):
-            st_app.session_state.current_stage = "metadata"
-            st_app.rerun()
-# --- Fine nuova funzione ---
 
 
 # Configurazione del modello e dei prompt
@@ -80,8 +58,15 @@ geminiLLM = ChatGoogleGenerativeAI(
     top_k = llmConfig.get("top_k", None),
 )
 
-# Inizializzazione delle pipelines
+# Inizializzazione di Langfuse
+langfuse = Langfuse( 
+    public_key= os.environ.get('LANGFUSE_PUBLIC_KEY'),
+    secret_key= os.environ.get('LANGFUSE_PRIVATE_KEY'), 
+    host= os.environ.get('LANGFUSE_STRING_CONNECTION')
+)
+langfuse_handler = CallbackHandler()
 
+# Inizializzazione delle pipelines
 if "src_schema_graph" not in st.session_state:
     st.session_state.src_schema_graph = create_pipeline(
         llm_node=SchemaNode(llm=geminiLLM, prompt=prompts["source_schema_extraction_prompt"], feedback_prompt=prompts["feedback_prompt"]),
@@ -98,41 +83,6 @@ if "mapping_graph" not in st.session_state:
     )
 
 
-def show_dataset_selection(st_app):
-    st_app.header("1. Selezione Dataset")
-    st_app.write("Scegli la cartella e la sottocartella del tuo dataset.")
-    folders = [d for d in os.listdir(BASE_PATH) if os.path.isdir(os.path.join(BASE_PATH, d))]
-    
-    if "selected_folder" not in st_app.session_state:
-        st_app.session_state.selected_folder = ""
-        st_app.session_state.selected_subfolder = ""
-
-    selected_folder = st_app.selectbox("Seleziona Cartella Principale", [""] + folders, 
-                                        index=folders.index(st_app.session_state.selected_folder) + 1 if st_app.session_state.selected_folder else 0)
-
-    if selected_folder:
-        st_app.session_state.selected_folder = selected_folder
-        subfolder_path = os.path.join(BASE_PATH, selected_folder)
-        subfolders = [d for d in os.listdir(subfolder_path) if os.path.isdir(os.path.join(subfolder_path, d))]
-        
-        selected_subfolder = st_app.selectbox("Seleziona Sottocartella del Dataset", [""] + subfolders,
-                                              index=subfolders.index(st_app.session_state.selected_subfolder) + 1 if st_app.session_state.selected_subfolder else 0)
-        
-        if selected_subfolder:
-            if st_app.session_state.selected_subfolder != selected_subfolder:
-                st_app.session_state.selected_subfolder = selected_subfolder
-            if st_app.button("Conferma Selezione"):
-                # Estrai subito i samples dopo la conferma
-                dataset_path = os.path.join(BASE_PATH, selected_folder)
-                dataset_data = os.path.join(dataset_path, selected_subfolder)
-                st_app.session_state.dataset_path = dataset_path
-                st_app.session_state.dataset_data = dataset_data
-                st_app.session_state.samples = load_dataset_samples(dataset_data, k=1)
-                if st_app.session_state.current_stage != "action_selection":
-                    st_app.session_state.current_stage = "action_selection"
-                    st_app.rerun()
-
-
 # Funzione principale che gestisce la logica di navigazione
 def main():
     st.title("ETL Dashboard")
@@ -141,7 +91,7 @@ def main():
     # Inizializzazione dello stato di navigazione
     if "current_stage" not in st.session_state:
         st.session_state.current_stage = "dataset_selection"
-        st.session_state.selected_folder = ""
+        st.session_state.selected_dataset_name = ""
         st.session_state.selected_subfolder = "" 
         st.session_state.metadata_confirmed = False
         st.session_state.pipeline_started = False
@@ -150,7 +100,7 @@ def main():
 
     # HOME
     if st.session_state.current_stage == "dataset_selection":
-        show_dataset_selection(st)
+        show_dataset_selection(st,BASE_PATH)
     
     # ACTON SELECTION
     elif st.session_state.current_stage == "action_selection":
@@ -158,8 +108,8 @@ def main():
 
     # METADATA EDITOR
     elif st.session_state.current_stage in ["metadata", "confirm_delete"]:
-        if st.session_state.selected_folder and st.session_state.selected_subfolder:
-            st.session_state.dataset_path = os.path.join(BASE_PATH, st.session_state.selected_folder)
+        if st.session_state.selected_version and st.session_state.selected_dataset_name and st.session_state.selected_subfolder:
+            st.session_state.dataset_path = os.path.join(BASE_PATH, st.session_state.selected_version, st.session_state.selected_dataset_name)
             st.session_state.dataset_data = os.path.join(st.session_state.dataset_path, st.session_state.selected_subfolder)
             st.session_state.samples = load_dataset_samples(st.session_state.dataset_data, k=1)
         show_metadata_editor(st)
@@ -168,14 +118,14 @@ def main():
     elif st.session_state.current_stage == "schema_extraction_options":
         show_schema_options(st)
     elif st.session_state.current_stage == "schema_extraction":
-        show_schema_extraction(st)
+        show_schema_extraction(st, langfuse_handler)
     
     # PIPE 3: Mapping Generation
     elif st.session_state.current_stage == "select_target_schema":
         show_select_target_schema(st)
         
     elif st.session_state.current_stage == "mapping_generation":
-        show_mapping_generation(st)
+        show_mapping_generation(st, langfuse_handler)
     
     elif st.session_state.current_stage == "mapping_results":
         show_mapping_results(st)

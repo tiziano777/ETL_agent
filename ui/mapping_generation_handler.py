@@ -8,21 +8,10 @@ from langgraph.types import Command
 
 from states.mapping_schema_state import State as MappingState
 
-from langfuse import Langfuse
-from langfuse.langchain import CallbackHandler
-
 import dotenv
 dotenv.load_dotenv()
 BASE_PATH = os.getenv("BASE_PATH", "")
 SCHEMA_DIR = os.getenv("SCHEMA_DIR", "")
-
-# Inizializzazione di Langfuse
-langfuse = Langfuse( 
-    public_key= os.environ.get('LANGFUSE_PUBLIC_KEY'),
-    secret_key= os.environ.get('LANGFUSE_PRIVATE_KEY'), 
-    host= os.environ.get('LANGFUSE_STRING_CONNECTION')
-)
-langfuse_handler = CallbackHandler()
 
 def show_select_target_schema(st):
     """Mostra la sezione di selezione del target schema (STEP 5)."""
@@ -86,7 +75,7 @@ def show_select_target_schema(st):
                 st.session_state.manual_edit_active = False
                 st.rerun()
 
-def show_mapping_generation(st):
+def show_mapping_generation(st, langfuse_handler):
     """Gestisce la visualizzazione e l'esecuzione della pipeline di mapping (STEP 6)."""
     st.subheader("Generazione e Validazione del Mapping")
 
@@ -136,22 +125,24 @@ def show_mapping_generation(st):
             st.session_state.thread_id_mapping = str(uuid.uuid4())
         
         try:
-            src_schema_path = os.path.join(BASE_PATH, st.session_state.selected_folder, "schema.json")
-            src_metadata_path = os.path.join(BASE_PATH, st.session_state.selected_folder, "metadata_0.json")
+            src_schema_path = os.path.join(BASE_PATH, st.session_state.selected_version, st.session_state.selected_dataset_name, "schema.json")
+            src_metadata_path = os.path.join(BASE_PATH, st.session_state.selected_version, st.session_state.selected_dataset_name, "metadata_0.json")
             with open(src_schema_path, 'r', encoding='utf-8') as f:
                 src_schema = json.load(f)
             with open(src_metadata_path, 'r', encoding='utf-8') as f:
                 metadata = json.load(f)
         except Exception as e:
             st.error(f"Errore nel caricamento dei file di schema sorgente o metadati: {e}")
-            return
+            if st.button("⬅️ Torna alla Selezione Generazione schema sorgente", key="back_to_src_schema_btn"):
+                st.session_state.current_stage = "schema_extraction_options"
+                st.rerun()
         
         mapping_state = MappingState(
             samples=st.session_state.samples,
             src_schema=src_schema,
             dst_schema=st.session_state.dst_schema,
             metadata=metadata,
-            output_path=os.path.join(BASE_PATH, st.session_state.selected_folder, "mapping.json"),
+            output_path=os.path.join(BASE_PATH, st.session_state.selected_version, st.session_state.selected_dataset_name, "mapping.json"),
         )
         
         config = {"configurable": {"thread_id": st.session_state.thread_id_mapping}, "callbacks": [langfuse_handler]}
