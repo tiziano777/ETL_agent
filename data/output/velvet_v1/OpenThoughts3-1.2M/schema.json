@@ -1,0 +1,65 @@
+{
+  "type": "object",
+  "properties": {
+    "difficulty": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "Difficulty level of the problem/task. Null if not available.",
+      "default": null
+    },
+    "source": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Source of the problem/task. Null if not available.",
+      "default": null
+    },
+    "domain": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Domain of the problem/task. Null if not available.",
+      "default": null
+    },
+    "conversations": {
+      "type": "array",
+      "description": "A list of conversation turns.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "enum": [
+              "human",
+              "gpt"
+            ],
+            "description": "Indicates who is speaking (human or gpt)."
+          },
+          "value": {
+            "type": "string",
+            "description": "The content of the conversation turn."
+          },
+          "think": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "GPT's thought process (only present when 'from' is 'gpt'). Null if not available.",
+            "default": null
+          }
+        },
+        "required": [
+          "from",
+          "value"
+        ]
+      }
+    }
+  },
+  "required": [
+    "conversations"
+  ]
+}

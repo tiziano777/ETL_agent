@@ -1,0 +1,128 @@
+[
+  {
+    "src_field": "N/A",
+    "target_field": "template",
+    "transformation": "fc_chat_st",
+    "data_type": "string",
+    "info": "Setting the template to a fixed value 'fc_chat_st' as per the target schema's enum."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "system",
+    "transformation": null,
+    "data_type": "string",
+    "info": "System prompt is not available in the source schema, setting to null."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "context",
+    "transformation": null,
+    "data_type": "string",
+    "info": "Global context is not available in the source schema, setting to null."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "messages[0].role",
+    "transformation": "USER",
+    "data_type": "string",
+    "info": "Setting role to USER for the first message. messages[0] because minItems is 1."
+  },
+  {
+    "src_field": "input",
+    "target_field": "messages[0].content",
+    "transformation": "src",
+    "data_type": "string",
+    "info": "Mapping the input to the content of the USER message. messages[0] because minItems is 1."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "messages[1].role",
+    "transformation": "ASSISTANT",
+    "data_type": "string",
+    "info": "Setting role to ASSISTANT for the second message. messages[1] because minItems is 1 and input already mapped to messages[0]."
+  },
+  {
+    "src_field": "output",
+    "target_field": "messages[1].content",
+    "transformation": "src",
+    "data_type": "string",
+    "info": "Mapping the output to the content of the ASSISTANT message. messages[1] because minItems is 1 and input already mapped to messages[0]."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "messages[0].functioncall",
+    "transformation": null,
+    "data_type": "object",
+    "info": "Function call is not available in the source schema, setting to null. messages[0] because minItems is 1."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "messages[0].think",
+    "transformation": null,
+    "data_type": "string",
+    "info": "Think is not available in the source schema, setting to null. messages[0] because minItems is 1."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "messages[0].context",
+    "transformation": null,
+    "data_type": "string",
+    "info": "Message context is not available in the source schema, setting to null. messages[0] because minItems is 1."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "messages[1].functioncall",
+    "transformation": null,
+    "data_type": "object",
+    "info": "Function call is not available in the source schema, setting to null. messages[1] because minItems is 1 and input already mapped to messages[0]."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "messages[1].think",
+    "transformation": null,
+    "data_type": "string",
+    "info": "Think is not available in the source schema, setting to null. messages[1] because minItems is 1 and input already mapped to messages[0]."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "messages[1].context",
+    "transformation": null,
+    "data_type": "string",
+    "info": "Message context is not available in the source schema, setting to null. messages[1] because minItems is 1 and input already mapped to messages[0]."
+  },
+  {
+    "src_field": "language",
+    "target_field": "_lang",
+    "transformation": "src",
+    "data_type": "string",
+    "info": "Mapping the language to the _lang field."
+  },
+  {
+    "src_field": "dataset_name",
+    "target_field": "_dataset_name",
+    "transformation": "src",
+    "data_type": "string",
+    "info": "Mapping the dataset_name to the _dataset_name field."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "_filename",
+    "transformation": null,
+    "data_type": "string",
+    "info": "Filename is not available in the source schema, setting to null."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "_subpath",
+    "transformation": null,
+    "data_type": "string",
+    "info": "Subpath is not available in the source schema, setting to null."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "_id_hash",
+    "transformation": null,
+    "data_type": "string",
+    "info": "Id hash is not available in the source schema, setting to null."
+  }
+]

@@ -1,0 +1,96 @@
+[
+  {
+    "src_field": "N/A",
+    "target_field": "template",
+    "transformation": "fc_chat_st",
+    "data_type": "string",
+    "info": "Setting the template to a fixed value 'fc_chat_st' as per the target schema's enum."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "system",
+    "transformation": null,
+    "data_type": "string",
+    "info": "System prompt is not available in the source schema, setting to null."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "context",
+    "transformation": null,
+    "data_type": "string",
+    "info": "Global context is not available in the source schema, setting to null."
+  },
+  {
+    "src_field": "conversations[].from",
+    "target_field": "messages[].role",
+    "transformation": {
+      "human": "USER",
+      "gpt": "ASSISTANT"
+    },
+    "data_type": "string",
+    "info": "Mapping the 'from' field in the source 'conversations' array to the 'role' field in the target 'messages' array. Using enum mapping to convert 'human' to 'USER' and 'gpt' to 'ASSISTANT'."
+  },
+  {
+    "src_field": "conversations[].value",
+    "target_field": "messages[].content",
+    "transformation": "src",
+    "data_type": "string",
+    "info": "Mapping the 'value' field in the source 'conversations' array to the 'content' field in the target 'messages' array. Direct mapping."
+  },
+  {
+    "src_field": "conversations[].think",
+    "target_field": "messages[].think",
+    "transformation": "src",
+    "data_type": "string",
+    "info": "Mapping the 'think' field in the source 'conversations' array to the 'think' field in the target 'messages' array. Direct mapping."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "messages[].functioncall",
+    "transformation": null,
+    "data_type": "object",
+    "info": "Function call is not available in the source schema, setting to null."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "messages[].context",
+    "transformation": null,
+    "data_type": "string",
+    "info": "Message context is not available in the source schema, setting to null."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "_lang",
+    "transformation": null,
+    "data_type": "string",
+    "info": "Language is not available in the source schema, setting to null."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "_dataset_name",
+    "transformation": "OpenThoughts3-1.2M",
+    "data_type": "string",
+    "info": "Mapping the dataset name from metadata. Setting to fixed value from metadata."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "_filename",
+    "transformation": "OpenThoughts3-1.2M",
+    "data_type": "string",
+    "info": "Mapping the filename from metadata. Setting to fixed value from metadata."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "_subpath",
+    "transformation": "data",
+    "data_type": "string",
+    "info": "Mapping the subpath from metadata. Setting to fixed value from metadata."
+  },
+  {
+    "src_field": "N/A",
+    "target_field": "_id_hash",
+    "transformation": null,
+    "data_type": "string",
+    "info": "Id hash is not available in the source schema, setting to null."
+  }
+]

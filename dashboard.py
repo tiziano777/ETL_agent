@@ -24,6 +24,7 @@ from ui.schema_extration_handler import show_schema_options, show_schema_extract
 from ui.mapping_generation_handler import show_select_target_schema, show_mapping_generation, show_mapping_results
 from ui.action_selection_handler import show_action_selection
 from ui.dataset_selection_handler import show_dataset_selection  
+from ui.parallel_mapping_handler import show_parallel_mapping
 
 from utils.sample_reader import load_dataset_samples
 
@@ -34,7 +35,7 @@ from langfuse.langchain import CallbackHandler
 import dotenv
 dotenv.load_dotenv()
 BASE_PATH = os.getenv("BASE_PATH", "")
-
+PROCESSED_DATA_DIR = os.getenv("PROCESSED_DATA_DIR")
 
 # Configurazione del modello e dei prompt
 MODEL_CONFIG = "./config/gemini2.0-flash.yml"
@@ -129,6 +130,9 @@ def main():
     
     elif st.session_state.current_stage == "mapping_results":
         show_mapping_results(st)
+
+    elif st.session_state.current_stage == "run_parallel_mapping":
+        show_parallel_mapping(st, PROCESSED_DATA_DIR, BASE_PATH)
 
 if __name__ == "__main__":
     main()
