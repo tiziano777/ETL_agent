@@ -8,7 +8,7 @@ langfuse
 langchain_google_genai
 json_repair
 genson
-
+duckdb
 datasets
 
 

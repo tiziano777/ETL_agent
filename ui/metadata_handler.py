@@ -5,7 +5,7 @@ from datetime import datetime
 import dotenv
 import shutil
 
-from utils.updater import archive_and_update_metadata
+from utils.updater import archive_and_update_metadata, update_master_metadata
 
 dotenv.load_dotenv()
 
@@ -212,7 +212,6 @@ def show_metadata_editor(st):
         st.session_state.metadata_entries[new_field] = new_value
         metadata_json["metadata"] = st.session_state.metadata_entries
         os.makedirs(os.path.dirname(metadata_file), exist_ok=True)
-        metadata_file = archive_and_update_metadata(st, metadata_file, metadata_json)
         st.rerun()
 
     # =============================
@@ -236,7 +235,6 @@ def show_metadata_editor(st):
                         del st.session_state.metadata_entries[key]
                         metadata_json["metadata"] = st.session_state.metadata_entries
                         os.makedirs(os.path.dirname(metadata_file), exist_ok=True)
-                        metadata_file = archive_and_update_metadata(st, metadata_file, metadata_json)
                         st.rerun()
     else:
         st.info("Nessun metadato inserito.")
@@ -250,6 +248,8 @@ def show_metadata_editor(st):
         if st.button("✅ Conferma Metadati"):
             try:
                 metadata_json["metadata"] = st.session_state.metadata_entries
+                metadata_file = archive_and_update_metadata(st, metadata_file, metadata_json)
+                update_master_metadata(metadata_file)
                 st.success("Metadati salvati con successo!")
                 st.session_state.metadata_confirmed = True
                 st.session_state.current_stage = "action_selection"
