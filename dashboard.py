@@ -34,7 +34,8 @@ from langfuse.langchain import CallbackHandler
 
 import dotenv
 dotenv.load_dotenv()
-BASE_PATH = os.getenv("BASE_PATH", "")
+BASE_PATH = os.getenv("BASE_PATH")
+METADATA_PATH = os.getenv("METADATA_PATH")
 PROCESSED_DATA_DIR = os.getenv("PROCESSED_DATA_DIR")
 
 # Configurazione del modello e dei prompt
@@ -132,7 +133,7 @@ def main():
         show_mapping_results(st)
 
     elif st.session_state.current_stage == "run_parallel_mapping":
-        show_parallel_mapping(st, PROCESSED_DATA_DIR, BASE_PATH)
+        show_parallel_mapping(st, PROCESSED_DATA_DIR, METADATA_PATH)
 
 if __name__ == "__main__":
     main()

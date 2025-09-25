@@ -5,7 +5,8 @@ import dotenv
 dotenv.load_dotenv()
 
 BASE_PATH = os.getenv("BASE_PATH")
-METADATA_DIR = os.getenv("METADATA_DIR")
+METADATA_PATH = os.getenv("METADATA_PATH")
+METADATA_CONF = os.getenv("METADATA_CONF")
 
 def show_metadata_editor(st):
     """Mostra la sezione di gestione e modifica dei metadati."""
@@ -27,13 +28,13 @@ def show_metadata_editor(st):
 
     # Path
     dataset_path = os.path.join(BASE_PATH, st.session_state.selected_version, st.session_state.selected_dataset_name)
-    metadata_file = os.path.join(dataset_path, "metadata_0.json")
+    metadata_file = os.path.join(METADATA_PATH, st.session_state.selected_version, st.session_state.selected_dataset_name, st.session_state.selected_subpath, "metadata_0.json")
 
     # =============================
     # Carica i campi disponibili (schema)
     # =============================
     try:
-        with open(METADATA_DIR, "r", encoding="utf-8") as f:
+        with open(METADATA_CONF, "r", encoding="utf-8") as f:
             metadata_fields = json.load(f)
     except FileNotFoundError:
         metadata_fields = [ "_size", "_records", "_link", "_dataset_description"]
@@ -90,7 +91,7 @@ def show_metadata_editor(st):
                 try:
                     if new_field_name not in metadata_fields:
                         metadata_fields.append(new_field_name)
-                        with open(METADATA_DIR, "w", encoding="utf-8") as f:
+                        with open(METADATA_CONF, "w", encoding="utf-8") as f:
                             json.dump(metadata_fields, f, indent=2, ensure_ascii=False)
                         st.success(f"Campo '{new_field_name}' aggiunto con successo!")
                         st.session_state.show_add_field = False
@@ -117,7 +118,7 @@ def show_metadata_editor(st):
                     if f in metadata_fields:
                         metadata_fields.remove(f)
                 try:
-                    with open(METADATA_DIR, "w", encoding="utf-8") as f:
+                    with open(METADATA_CONF, "w", encoding="utf-8") as f:
                         json.dump(metadata_fields, f, indent=2, ensure_ascii=False)
                     st.success("Campi eliminati con successo!")
                     st.session_state.show_delete_fields = False
@@ -144,6 +145,8 @@ def show_metadata_editor(st):
 
     if st.button("➕ Aggiungi/Modifica valore"):
         st.session_state.metadata_entries[new_field] = new_value
+        # Crea la cartella se non esiste
+        os.makedirs(os.path.dirname(metadata_file), exist_ok=True)
         # salvataggio immediato
         with open(metadata_file, "w", encoding="utf-8") as f:
             json.dump(st.session_state.metadata_entries, f, indent=2, ensure_ascii=False)
@@ -168,6 +171,7 @@ def show_metadata_editor(st):
                 if st.button("🗑️ Elimina", key=f"delete_btn_{key}"):
                     if key in st.session_state.metadata_entries:
                         del st.session_state.metadata_entries[key]
+                        os.makedirs(os.path.dirname(metadata_file), exist_ok=True)
                         with open(metadata_file, "w", encoding="utf-8") as f:
                             json.dump(st.session_state.metadata_entries, f, indent=2, ensure_ascii=False)
                         st.rerun()
@@ -182,6 +186,7 @@ def show_metadata_editor(st):
     with col3:
         if st.button("✅ Conferma Metadati"):
             try:
+                os.makedirs(os.path.dirname(metadata_file), exist_ok=True)
                 with open(metadata_file, "w", encoding="utf-8") as f:
                     json.dump(st.session_state.metadata_entries, f, indent=2, ensure_ascii=False)
                 st.success("Metadati salvati con successo!")

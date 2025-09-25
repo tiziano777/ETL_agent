@@ -10,7 +10,7 @@ from states.mapping_schema_state import State as MappingState
 
 import dotenv
 dotenv.load_dotenv()
-BASE_PATH = os.getenv("BASE_PATH", "")
+METADATA_PATH = os.getenv("METADATA_PATH", "")
 SCHEMA_DIR = os.getenv("SCHEMA_DIR", "")
 
 def show_select_target_schema(st):
@@ -125,8 +125,8 @@ def show_mapping_generation(st, langfuse_handler):
             st.session_state.thread_id_mapping = str(uuid.uuid4())
         
         try:
-            src_schema_path = os.path.join(BASE_PATH, st.session_state.selected_version, st.session_state.selected_dataset_name, "schema.json")
-            src_metadata_path = os.path.join(BASE_PATH, st.session_state.selected_version, st.session_state.selected_dataset_name, "metadata_0.json")
+            src_schema_path = os.path.join(METADATA_PATH, st.session_state.selected_version, st.session_state.selected_dataset_name, st.session_state.selected_subpath, "schema.json")
+            src_metadata_path = os.path.join(METADATA_PATH, st.session_state.selected_version, st.session_state.selected_dataset_name, st.session_state.selected_subpath, "metadata_0.json")
             with open(src_schema_path, 'r', encoding='utf-8') as f:
                 src_schema = json.load(f)
             with open(src_metadata_path, 'r', encoding='utf-8') as f:
@@ -142,7 +142,7 @@ def show_mapping_generation(st, langfuse_handler):
             src_schema=src_schema,
             dst_schema=st.session_state.dst_schema,
             metadata=metadata,
-            output_path=os.path.join(BASE_PATH, st.session_state.selected_version, st.session_state.selected_dataset_name, "mapping.json"),
+            output_path=os.path.join(METADATA_PATH, st.session_state.selected_version, st.session_state.selected_dataset_name, st.session_state.selected_subpath, "mapping.json"),
         )
         
         config = {"configurable": {"thread_id": st.session_state.thread_id_mapping}, "callbacks": [langfuse_handler]}

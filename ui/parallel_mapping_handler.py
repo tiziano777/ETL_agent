@@ -4,7 +4,7 @@ import json
 
 
 
-def show_parallel_mapping(st, processed_data_dir, base_path):
+def show_parallel_mapping(st, processed_data_dir, metadata_path):
     st.header("Esecuzione Pipeline ETL")
     st.info("La pipeline sta elaborando i dati in parallelo. Potrebbe volerci del tempo per i dataset più grandi.")
     
@@ -27,9 +27,10 @@ def show_parallel_mapping(st, processed_data_dir, base_path):
         progress_bar.progress(value)
 
     mapping_path= os.path.join(
-        base_path,
+        metadata_path,
         st.session_state.selected_version,
         st.session_state.selected_dataset_name,
+        st.session_state.selected_subpath,
         "mapping.json",
     )
     if not os.path.exists(mapping_path):
@@ -52,4 +53,4 @@ def show_parallel_mapping(st, processed_data_dir, base_path):
     st.write(f"Campioni totali elaborati: {results['total_processed_samples']}")
     st.write(f"I dati sono stati salvati in: `{output_data_path}`")
 
-    st.button("Torna all'inizio", on_click=lambda: st.session_state.update(current_stage="dataset_selection", metadata_confirmed=False, pipeline_started=False, src_schema=None, dst_schema=None))
+    st.button("Torna alla selezione del dataset", on_click=lambda: st.session_state.update(current_stage="dataset_selection", metadata_confirmed=False, pipeline_started=False, src_schema=None, dst_schema=None))

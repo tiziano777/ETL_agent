@@ -9,7 +9,8 @@ from states.src_schema_state import State
 
 import dotenv
 dotenv.load_dotenv()
-BASE_PATH = os.getenv("BASE_PATH", "")
+BASE_PATH = os.getenv("BASE_PATH")
+METADATA_PATH = os.getenv("METADATA_PATH")
 
 
 def show_schema_options(st):
@@ -120,7 +121,7 @@ def show_schema_extraction(st, langfuse_handler):
 
         init_state = State(
             samples=samples,
-            output_path=os.path.join(BASE_PATH, st.session_state.selected_version, st.session_state.selected_dataset_name, "schema.json"),
+            output_path=os.path.join(METADATA_PATH, st.session_state.selected_version, st.session_state.selected_dataset_name, st.session_state.selected_subpath, "schema.json"),
         )
         
         if st.session_state.get("deterministic_extraction", False):
