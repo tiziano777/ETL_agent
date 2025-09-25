@@ -4,8 +4,9 @@ import ast
 import uuid
 import os
 import traceback
-from langgraph.types import Command
+import glob
 
+from langgraph.types import Command
 from states.mapping_schema_state import State as MappingState
 
 import dotenv
@@ -125,12 +126,12 @@ def show_mapping_generation(st, langfuse_handler):
             st.session_state.thread_id_mapping = str(uuid.uuid4())
         
         try:
-            src_schema_path = os.path.join(METADATA_PATH, st.session_state.selected_version, st.session_state.selected_dataset_name, st.session_state.selected_subpath, "schema.json")
-            src_metadata_path = os.path.join(METADATA_PATH, st.session_state.selected_version, st.session_state.selected_dataset_name, st.session_state.selected_subpath, "metadata_0.json")
-            with open(src_schema_path, 'r', encoding='utf-8') as f:
-                src_schema = json.load(f)
-            with open(src_metadata_path, 'r', encoding='utf-8') as f:
-                metadata = json.load(f)
+            metadata_path = max(glob.glob(os.path.join(METADATA_PATH,f"{st.session_state.selected_version}__{st.session_state.selected_dataset_name}__{st.session_state.selected_subpath}__*.json")))
+            with open(metadata_path, 'r', encoding='utf-8') as f:
+                metadata_content = json.load(f)
+            src_schema= metadata_content.get("src_schema")
+            metadata= metadata_content.get("metadata")
+                        
         except Exception as e:
             st.error(f"Errore nel caricamento dei file di schema sorgente o metadati: {e}")
             if st.button("⬅️ Torna alla Selezione Generazione schema sorgente", key="back_to_src_schema_btn"):
@@ -142,7 +143,7 @@ def show_mapping_generation(st, langfuse_handler):
             src_schema=src_schema,
             dst_schema=st.session_state.dst_schema,
             metadata=metadata,
-            output_path=os.path.join(METADATA_PATH, st.session_state.selected_version, st.session_state.selected_dataset_name, st.session_state.selected_subpath, "mapping.json"),
+            output_path=max(glob.glob(os.path.join(METADATA_PATH,f"{st.session_state.selected_version}__{st.session_state.selected_dataset_name}__{st.session_state.selected_subpath}__*.json"))),
         )
         
         config = {"configurable": {"thread_id": st.session_state.thread_id_mapping}, "callbacks": [langfuse_handler]}

@@ -1,0 +1,23 @@
+{
+  "doc_id": "/Users/T.Finizzi/repo/ETL_agent/data/velvet_v1/glaive_dataset/data",
+  "metadata": {
+    "_dataset_name": "glaive"
+  },
+  "src_schema": {
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+      "prompt": {
+        "type": "string"
+      },
+      "response": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "prompt",
+      "response"
+    ]
+  },
+  "mapping": []
+}

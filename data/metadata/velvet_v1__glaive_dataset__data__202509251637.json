@@ -1,0 +1,109 @@
+{
+  "doc_id": "/Users/T.Finizzi/repo/ETL_agent/data/velvet_v1/glaive_dataset/data",
+  "metadata": {
+    "_dataset_name": "glaive",
+    "_subpath": "data"
+  },
+  "src_schema": {
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+      "prompt": {
+        "type": "string"
+      },
+      "response": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "prompt",
+      "response"
+    ]
+  },
+  "mapping": [
+    {
+      "src_field": "N/A",
+      "target_field": "template",
+      "transformation": "fc_chat_st",
+      "data_type": "string",
+      "info": "Setting a default template value as fc_chat_st."
+    },
+    {
+      "src_field": "N/A",
+      "target_field": "system",
+      "transformation": null,
+      "data_type": "string",
+      "info": "System prompt not available in source schema, setting to null."
+    },
+    {
+      "src_field": "N/A",
+      "target_field": "context",
+      "transformation": null,
+      "data_type": "string",
+      "info": "Global context not available in source schema, setting to null."
+    },
+    {
+      "src_field": "prompt",
+      "target_field": "messages[0].content",
+      "transformation": "src",
+      "data_type": "string",
+      "info": "Mapping the prompt field to the content of the first message in the messages array."
+    },
+    {
+      "src_field": "N/A",
+      "target_field": "messages[0].role",
+      "transformation": "USER",
+      "data_type": "string",
+      "info": "Setting the role of the first message to USER since the prompt represents user input."
+    },
+    {
+      "src_field": "response",
+      "target_field": "messages[1].content",
+      "transformation": "src",
+      "data_type": "string",
+      "info": "Mapping the response field to the content of the second message in the messages array."
+    },
+    {
+      "src_field": "N/A",
+      "target_field": "messages[1].role",
+      "transformation": "ASSISTANT",
+      "data_type": "string",
+      "info": "Setting the role of the second message to ASSISTANT since the response represents the model output."
+    },
+    {
+      "src_field": "N/A",
+      "target_field": "_lang",
+      "transformation": null,
+      "data_type": "string",
+      "info": "Language is not available in source schema, setting to null."
+    },
+    {
+      "src_field": "N/A",
+      "target_field": "_dataset_name",
+      "transformation": "glaive",
+      "data_type": "string",
+      "info": "Mapping dataset name from metadata."
+    },
+    {
+      "src_field": "N/A",
+      "target_field": "_filename",
+      "transformation": null,
+      "data_type": "string",
+      "info": "Filename is not available in source schema, setting to null."
+    },
+    {
+      "src_field": "N/A",
+      "target_field": "_subpath",
+      "transformation": "data",
+      "data_type": "string",
+      "info": "Mapping subpath from metadata."
+    },
+    {
+      "src_field": "N/A",
+      "target_field": "_id_hash",
+      "transformation": null,
+      "data_type": "string",
+      "info": "ID hash is not available in source schema, setting to null."
+    }
+  ]
+}

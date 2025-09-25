@@ -39,6 +39,12 @@ def show_parallel_mapping(st, processed_data_dir, metadata_path):
 
     with open(mapping_path, "r") as f:
         st.session_state.mapping = json.load(f)
+    
+    st.session_state.mapping = st.session_state.mapping.get("mapping")
+    if not st.session_state.mapping:
+        st.error("Mapping is empty. Please generate the mapping first.")
+        st.session_state.update(current_stage="action_selection", metadata_confirmed=False, pipeline_started=False, src_schema=None, dst_schema=None)
+
 
     results = run_parallel_mapping(
         input_data_path,

@@ -1,15 +1,76 @@
 import os
 import json
-
+import glob
+from datetime import datetime
 import dotenv
+import shutil
+
+from utils.updater import archive_and_update_metadata
+
 dotenv.load_dotenv()
 
 BASE_PATH = os.getenv("BASE_PATH")
 METADATA_PATH = os.getenv("METADATA_PATH")
 METADATA_CONF = os.getenv("METADATA_CONF")
 
+def find_metadata_files(st):
+    """
+    Trova il file di metadati più recente (tramite timestamp) per il dataset selezionato.
+    Archivia in una sottocartella 'archived_metadata' qualsiasi file obsoleto trovato.
+    """
+    # Estrazione delle variabili dalla sessione Streamlit
+    version = st.session_state.selected_version
+    dataset_name = st.session_state.selected_dataset_name 
+    subpath = st.session_state.selected_subpath
+
+    # --- 1. Definizione del Pattern di Ricerca ---
+    # Il pattern deve corrispondere ESATTAMENTE alla tua naming convention:
+    # Esempio: v1__glaive__data__202509251540.json
+    search_pattern = f"{version}__{dataset_name}__{subpath}__*.json"
+
+    # 2. Cerca tutti i file che corrispondono
+    full_pattern = os.path.join(METADATA_PATH, search_pattern)
+    matching_files = glob.glob(full_pattern)
+    
+    if not matching_files:
+        print(f"Errore: Nessun file di metadati trovato per {dataset_name}_{version} nel percorso {METADATA_PATH}")
+        return None
+
+    # Ordina i percorsi dei file: max() restituirà il file con il timestamp più alto
+    latest_file_path = max(matching_files)
+
+    # --- 3. Gestione e Archiviazione degli Obsoleti ---
+    if len(matching_files) > 1: 
+        print(f"Attenzione: Trovati {len(matching_files)} file per {dataset_name}_{version}. Archiviazione delle versioni più vecchie.")
+        # Definisci e crea la directory di archiviazione
+        archive_dir = os.path.join(METADATA_PATH, "archived_metadata")
+        os.makedirs(archive_dir, exist_ok=True)
+        
+        for f_obsolete in matching_files:
+            if f_obsolete != latest_file_path:
+                
+                file_name = os.path.basename(f_obsolete)
+                new_archive_path = os.path.join(archive_dir, file_name)
+
+                try:
+                    os.rename(f_obsolete, new_archive_path) 
+                    print(f"File obsoleto archiviato: {file_name}")
+                except Exception as e:
+                    print(f"Errore durante l'archiviazione di {file_name}: {e}")
+
+    # 4. Restituisce il percorso del file più recente
+    print(f"File di metadati corrente selezionato: {os.path.basename(latest_file_path)}")
+    return latest_file_path
+
 def show_metadata_editor(st):
     """Mostra la sezione di gestione e modifica dei metadati."""
+
+    # Carica la lista dei campi metadati di sistema
+    if os.path.exists(METADATA_CONF):
+        with open(METADATA_CONF, "r", encoding="utf-8") as f:
+            metadata_fields = json.load(f)
+    else:
+        metadata_fields = []
 
     st.subheader("Inserisci Metadati del Dataset")
     st.write("Inserisci e modifica i metadati chiave per il tuo dataset.")
@@ -27,28 +88,32 @@ def show_metadata_editor(st):
             st.rerun()
 
     # Path
-    dataset_path = os.path.join(BASE_PATH, st.session_state.selected_version, st.session_state.selected_dataset_name)
-    metadata_file = os.path.join(METADATA_PATH, st.session_state.selected_version, st.session_state.selected_dataset_name, st.session_state.selected_subpath, "metadata_0.json")
+    dataset_path = os.path.join(BASE_PATH, st.session_state.selected_version, st.session_state.selected_dataset_name, st.session_state.selected_subpath)
+    metadata_file = find_metadata_files(st)
 
     # =============================
-    # Carica i campi disponibili (schema)
+    # Carica o crea il file metadata.json
     # =============================
-    try:
-        with open(METADATA_CONF, "r", encoding="utf-8") as f:
-            metadata_fields = json.load(f)
-    except FileNotFoundError:
-        metadata_fields = [ "_size", "_records", "_link", "_dataset_description"]
+    if metadata_file is None:
+        metadata_file = os.path.join(METADATA_PATH,f"{st.session_state.selected_version}__{st.session_state.selected_dataset_name}__{st.session_state.selected_subpath}__{datetime.now().strftime('%Y%m%d%H%M')}.json")
+        os.makedirs(os.path.dirname(metadata_file), exist_ok=True)
+        metadata_json = {
+            "doc_id": dataset_path,
+            "metadata": {},
+            "src_schema": {},
+            "mapping": []
+        }
+        with open(metadata_file, "w", encoding="utf-8") as f:
+            json.dump(metadata_json, f, indent=2, ensure_ascii=False)
+    else:
+        with open(metadata_file, "r", encoding="utf-8") as f:
+            metadata_json = json.load(f)
+        # Assicura che tutte le chiavi ci siano
+        for k in ["doc_id", "metadata", "src_schema", "mapping"]:
+            if k not in metadata_json:
+                metadata_json[k] = {} if k != "mapping" else []
 
-    # =============================
-    # Carica i valori correnti dal file del dataset
-    # =============================
-    metadata_dict = {}
-    if os.path.exists(metadata_file):
-        try:
-            with open(metadata_file, "r", encoding="utf-8") as f:
-                metadata_dict = json.load(f)
-        except Exception:
-            st.warning("Impossibile caricare i metadati del dataset, inizializzo con vuoto.")
+    metadata_dict = metadata_json["metadata"]
 
     # =============================
     # Inizializza lo stato solo al primo load
@@ -145,11 +210,9 @@ def show_metadata_editor(st):
 
     if st.button("➕ Aggiungi/Modifica valore"):
         st.session_state.metadata_entries[new_field] = new_value
-        # Crea la cartella se non esiste
+        metadata_json["metadata"] = st.session_state.metadata_entries
         os.makedirs(os.path.dirname(metadata_file), exist_ok=True)
-        # salvataggio immediato
-        with open(metadata_file, "w", encoding="utf-8") as f:
-            json.dump(st.session_state.metadata_entries, f, indent=2, ensure_ascii=False)
+        metadata_file = archive_and_update_metadata(st, metadata_file, metadata_json)
         st.rerun()
 
     # =============================
@@ -171,9 +234,9 @@ def show_metadata_editor(st):
                 if st.button("🗑️ Elimina", key=f"delete_btn_{key}"):
                     if key in st.session_state.metadata_entries:
                         del st.session_state.metadata_entries[key]
+                        metadata_json["metadata"] = st.session_state.metadata_entries
                         os.makedirs(os.path.dirname(metadata_file), exist_ok=True)
-                        with open(metadata_file, "w", encoding="utf-8") as f:
-                            json.dump(st.session_state.metadata_entries, f, indent=2, ensure_ascii=False)
+                        metadata_file = archive_and_update_metadata(st, metadata_file, metadata_json)
                         st.rerun()
     else:
         st.info("Nessun metadato inserito.")
@@ -186,9 +249,7 @@ def show_metadata_editor(st):
     with col3:
         if st.button("✅ Conferma Metadati"):
             try:
-                os.makedirs(os.path.dirname(metadata_file), exist_ok=True)
-                with open(metadata_file, "w", encoding="utf-8") as f:
-                    json.dump(st.session_state.metadata_entries, f, indent=2, ensure_ascii=False)
+                metadata_json["metadata"] = st.session_state.metadata_entries
                 st.success("Metadati salvati con successo!")
                 st.session_state.metadata_confirmed = True
                 st.session_state.current_stage = "action_selection"

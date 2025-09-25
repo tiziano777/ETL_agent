@@ -3,15 +3,14 @@ import ast
 import uuid
 import os
 import traceback
-
+import glob
 from langgraph.types import Command
 from states.src_schema_state import State
 
+
 import dotenv
 dotenv.load_dotenv()
-BASE_PATH = os.getenv("BASE_PATH")
 METADATA_PATH = os.getenv("METADATA_PATH")
-
 
 def show_schema_options(st):
     """Mostra la sezione di estrazione o importazione dello schema."""
@@ -121,7 +120,7 @@ def show_schema_extraction(st, langfuse_handler):
 
         init_state = State(
             samples=samples,
-            output_path=os.path.join(METADATA_PATH, st.session_state.selected_version, st.session_state.selected_dataset_name, st.session_state.selected_subpath, "schema.json"),
+            output_path=max(glob.glob(os.path.join(METADATA_PATH, f"{st.session_state.selected_version}__{st.session_state.selected_dataset_name}__{st.session_state.selected_subpath}__*.json"))),
         )
         
         if st.session_state.get("deterministic_extraction", False):
@@ -153,7 +152,7 @@ def show_schema_extraction(st, langfuse_handler):
         st.subheader("Schema visualizzato a schermo")
         # Visualizza lo schema
         st.json(st.session_state.state.get("generated_schema", "{}"))
-        
+
         st.markdown("---")
         
         col1, col2 = st.columns(2)
