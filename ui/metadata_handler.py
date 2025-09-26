@@ -101,6 +101,7 @@ def show_metadata_editor(st):
             "doc_id": dataset_path,
             "metadata": {},
             "src_schema": {},
+            "dst_schema_id": '',
             "mapping": []
         }
         with open(metadata_file, "w", encoding="utf-8") as f:
@@ -109,9 +110,11 @@ def show_metadata_editor(st):
         with open(metadata_file, "r", encoding="utf-8") as f:
             metadata_json = json.load(f)
         # Assicura che tutte le chiavi ci siano
-        for k in ["doc_id", "metadata", "src_schema", "mapping"]:
+        for k in ["doc_id", "metadata", "src_schema", "dst_schema_id", "mapping"]:
             if k not in metadata_json:
                 metadata_json[k] = {} if k != "mapping" else []
+            if k == "dst_schema_id" and not metadata_json[k]:
+                metadata_json[k] = ''
 
     metadata_dict = metadata_json["metadata"]
 

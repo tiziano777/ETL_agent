@@ -25,6 +25,9 @@ from ui.mapping_generation_handler import show_select_target_schema, show_mappin
 from ui.action_selection_handler import show_action_selection
 from ui.dataset_selection_handler import show_dataset_selection  
 from ui.parallel_mapping_handler import show_parallel_mapping
+#from ui.data_studio_handler import data_studio
+from ui.query_dataset_handler import show_query_dataset
+from ui.metadata_backup_handler import show_metadata_backup
 
 from utils.sample_reader import load_dataset_samples
 
@@ -37,6 +40,7 @@ dotenv.load_dotenv()
 BASE_PATH = os.getenv("BASE_PATH")
 METADATA_PATH = os.getenv("METADATA_PATH")
 PROCESSED_DATA_DIR = os.getenv("PROCESSED_DATA_DIR")
+SCHEMA_DIR = os.getenv("SCHEMA_DIR")
 
 # Configurazione del modello e dei prompt
 MODEL_CONFIG = "./config/gemini2.0-flash.yml"
@@ -92,13 +96,25 @@ def main():
 
     # Inizializzazione dello stato di navigazione
     if "current_stage" not in st.session_state:
-        st.session_state.current_stage = "dataset_selection"
+        st.session_state.current_stage = ""
         st.session_state.selected_dataset_name = ""
         st.session_state.selected_subfolder = "" 
         st.session_state.metadata_confirmed = False
         st.session_state.pipeline_started = False
         st.session_state.src_schema = None
         st.session_state.dst_schema = None
+
+    dataset_btn = st.sidebar.button("Dataset Workflow")
+    data_studio_btn = st.sidebar.button("Data Studio")
+    if data_studio_btn:
+        st.session_state.sidebar_option = "Data Studio"
+        st.session_state.current_stage = "data_studio"
+        st.rerun()
+        return
+    if dataset_btn:
+        st.session_state.sidebar_option = "Dataset Workflow"
+        st.session_state.current_stage = "dataset_selection"
+        st.rerun()
 
     # HOME
     if st.session_state.current_stage == "dataset_selection":
@@ -134,6 +150,15 @@ def main():
 
     elif st.session_state.current_stage == "run_parallel_mapping":
         show_parallel_mapping(st, PROCESSED_DATA_DIR, METADATA_PATH)
+    
+    elif st.session_state.current_stage == "data_studio":
+        data_studio(st)
+    
+    elif st.session_state.current_stage == "query_current_dataset":
+        show_query_dataset(st,BASE_PATH, PROCESSED_DATA_DIR, METADATA_PATH, SCHEMA_DIR)
+    
+    elif st.session_state.current_stage == "metadata_backup":
+        show_metadata_backup(st)
 
 if __name__ == "__main__":
     main()

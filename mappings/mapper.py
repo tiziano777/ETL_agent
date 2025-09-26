@@ -100,15 +100,12 @@ class Mapper:
             return {}
 
     def _cast_to_schema_type(self, value: Any, target_schema: Dict[str, Any]) -> Any:
-        """Converte il valore al tipo richiesto dallo schema target"""
+        """Converte il valore al tipo richiesto dallo schema target, senza serializzare oggetti complessi a stringa"""
         if value is None or not target_schema:
             return value
-        
         target_type = target_schema.get("type")
         if isinstance(target_type, list):
-            # Se è un'unione di tipi, prendi il primo non-null
             target_type = next((t for t in target_type if t != "null"), "string")
-        
         try:
             if target_type == "integer" and not isinstance(value, int):
                 if isinstance(value, str) and value.isdigit():
@@ -124,11 +121,12 @@ class Mapper:
                 else:
                     return bool(value)
             elif target_type == "string" and not isinstance(value, str):
+                # NON serializzare oggetti complessi a stringa
+                if isinstance(value, (dict, list)):
+                    return value  # <-- restituisci dict/list senza serializzare
                 return str(value)
         except (ValueError, TypeError):
-            # Se la conversione fallisce, ritorna il valore originale
             pass
-        
         return value
 
     def _resolve_transformation(self, transformation: Optional[Any], src_value: Any, src_field: Optional[str], sample_root: Any, target_schema: Dict[str, Any] = None) -> Any:
@@ -371,6 +369,6 @@ class Mapper:
         transformed = self.apply_mapping(sample, mapping, dst_schema)
         valid, errors = self.validate(transformed, dst_schema)
         return transformed, valid, errors
-   
+
 
 

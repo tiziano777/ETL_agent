@@ -1,5 +1,5 @@
-
 def show_action_selection(st_app):
+    
     st_app.header("Scegli l'Operazione")
     st_app.write("Quale operazione desideri eseguire sul tuo dataset?")
     
@@ -24,4 +24,15 @@ def show_action_selection(st_app):
         # Bottone per lanciare la pipeline di mapping parallelo
         if st_app.button("Parallel Dataset Mapping ", use_container_width=True):
             st_app.session_state.current_stage = "run_parallel_mapping"
+            st_app.rerun()
+    
+    # Pulsanti aggiuntivi in basso, senza colori custom
+    col_extra1, col_extra2 = st_app.columns([1, 1])
+    with col_extra1:
+        if st_app.button("Query Current Dataset", key="btn_query_current", use_container_width=True):
+            st_app.session_state.current_stage = "query_current_dataset"
+            st_app.rerun()
+    with col_extra2:
+        if st_app.button("metadata backup", key="btn_metadata_backup", use_container_width=True):
+            st_app.session_state.current_stage = "metadata_backup"
             st_app.rerun()

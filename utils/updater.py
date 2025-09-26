@@ -20,7 +20,7 @@ def archive_and_update_metadata(st,metadata_file, metadata_json):
         if os.path.exists(metadata_file):
             archived_name = os.path.basename(metadata_file)
             archived_path = os.path.join(archive_dir, archived_name)
-            shutil.copy2(metadata_file, archived_path)
+            shutil.move(metadata_file, archived_path)
 
         # Aggiorna il timestamp nel nome file
         base_name = f"{st.session_state.selected_version}__{st.session_state.selected_dataset_name}__{st.session_state.selected_subpath}__{datetime.now().strftime('%Y%m%d%H%M')}.json"

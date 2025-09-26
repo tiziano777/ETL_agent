@@ -1,6 +1,10 @@
 import os
-from mappings.parallel_mapping_process import run_parallel_mapping
 import json
+import glob
+import pyarrow.parquet as pq
+import pyarrow as pa
+from mappings.parallel_mapping_process import run_parallel_mapping
+
 
 
 
@@ -19,7 +23,8 @@ def show_parallel_mapping(st, processed_data_dir, metadata_path):
     
     st.write(f"**Percorso di input:** `{input_data_path}`")
     st.write(f"**Percorso di output:** `{output_data_path}`")
-
+    mapping_str=glob.glob(os.path.join(metadata_path,f"{st.session_state.selected_version}__{st.session_state.selected_dataset_name}__{st.session_state.selected_subpath}__*.json"))
+    st.write(f"**Mapping PATH sorgente:** `{mapping_str}`")
     progress_bar = st.progress(0.0)
     
     # Callback per l'aggiornamento della barra di avanzamento
@@ -28,19 +33,18 @@ def show_parallel_mapping(st, processed_data_dir, metadata_path):
 
     mapping_path= os.path.join(
         metadata_path,
-        st.session_state.selected_version,
-        st.session_state.selected_dataset_name,
-        st.session_state.selected_subpath,
-        "mapping.json",
+        max(glob.glob(os.path.join(metadata_path,f"{st.session_state.selected_version}__{st.session_state.selected_dataset_name}__{st.session_state.selected_subpath}__*.json"))
     )
+    )
+
     if not os.path.exists(mapping_path):
         st.error(f"Mapping file not found at {mapping_path}. Please generate the mapping first.")
         return
 
     with open(mapping_path, "r") as f:
-        st.session_state.mapping = json.load(f)
-    
-    st.session_state.mapping = st.session_state.mapping.get("mapping")
+        metadata = json.load(f)
+
+    st.session_state.mapping = metadata['mapping']
     if not st.session_state.mapping:
         st.error("Mapping is empty. Please generate the mapping first.")
         st.session_state.update(current_stage="action_selection", metadata_confirmed=False, pipeline_started=False, src_schema=None, dst_schema=None)
@@ -59,4 +63,22 @@ def show_parallel_mapping(st, processed_data_dir, metadata_path):
     st.write(f"Campioni totali elaborati: {results['total_processed_samples']}")
     st.write(f"I dati sono stati salvati in: `{output_data_path}`")
 
+    parquet_files = sorted(glob.glob(os.path.join(output_data_path, "*_mapped_*.parquet")))
+    if parquet_files:
+        try:
+            table = pq.read_table(parquet_files[0])
+            rows = table.to_pylist()
+            if rows:
+                st.subheader("Primo sample del primo file Parquet generato:")
+                sample = rows[0]
+                st.json(sample)  # Visualizza dict annidati senza conversione a stringa
+            else:
+                st.warning("Il file Parquet è vuoto.")
+        except Exception as e:
+            st.warning(f"Impossibile leggere il file Parquet: {e}")
+    else:
+        st.warning("Nessun file Parquet trovato nella cartella di output.")
+
+    st.button("Torna alla home", on_click=lambda: st.session_state.update(current_stage="action_selection"))
     st.button("Torna alla selezione del dataset", on_click=lambda: st.session_state.update(current_stage="dataset_selection", metadata_confirmed=False, pipeline_started=False, src_schema=None, dst_schema=None))
+

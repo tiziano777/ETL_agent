@@ -53,10 +53,19 @@ def show_select_target_schema(st):
             st.error(f"Errore nella lettura del file schema: {e}")
             return
         
-        st.session_state.target_schema_comment = st.text_area(
-            "Aggiungi un commento o istruzioni per l'LLM (opzionale):",
-            key="target_schema_comment_box"
-        )
+        try:
+            metadata_path = max(glob.glob(os.path.join(METADATA_PATH,f"{st.session_state.selected_version}__{st.session_state.selected_dataset_name}__{st.session_state.selected_subpath}__*.json")))
+            with open(metadata_path, 'r', encoding='utf-8') as f:
+                metadata_content = json.load(f)
+                metadata_content['dst_schema_id'] = st.session_state.selected_target_schema_file
+            with open(metadata_path, 'w', encoding='utf-8') as f:
+                json.dump(metadata_content, f, indent=2, ensure_ascii=False)
+                
+        except Exception as e:
+            st.error(f"Errore nel caricamento o scrittura del file di metadati: {e}")
+            if st.button("⬅️ Torna alla Selezione Generazione schema sorgente", key="back_to_src_schema_btn"):
+                st.session_state.current_stage = "schema_extraction_options"
+                st.rerun()
     
     st.markdown("---")
     
@@ -131,6 +140,7 @@ def show_mapping_generation(st, langfuse_handler):
                 metadata_content = json.load(f)
             src_schema= metadata_content.get("src_schema")
             metadata= metadata_content.get("metadata")
+            
                         
         except Exception as e:
             st.error(f"Errore nel caricamento dei file di schema sorgente o metadati: {e}")

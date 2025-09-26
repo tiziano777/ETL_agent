@@ -23,6 +23,7 @@ class SchemaWriter:
                     "doc_id": '',
                     "metadata": {},
                     "src_schema": {},
+                    "dst_schema_id": '',
                     "mapping": []
                 }
 
